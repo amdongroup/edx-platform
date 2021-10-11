@@ -2,6 +2,7 @@
 
 
 import logging
+from django.http.response import HttpResponse
 
 from django.urls import reverse
 from edx_rest_api_client import exceptions
@@ -133,6 +134,15 @@ class BasketsView(APIView):
         default_enrollment_mode = audit_mode or honor_mode
         course_name = None
         course_announcement = None
+
+        #Custom code
+        self._enroll(course_key, user, "verified")
+
+        return HttpResponse(
+            reverse('dashboard')
+        )
+
+
         if course is not None:
             course_name = course.display_name
             course_announcement = course.announcement

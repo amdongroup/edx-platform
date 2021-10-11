@@ -16,7 +16,7 @@
              * @param  {string} courseKey  Slash-separated course key.
              * @param  {string} redirectUrl The URL to redirect to once enrollment completes.
              */
-            enroll: function(courseKey, redirectUrl) {
+            enroll: function(courseKey, redirectUrl, chapterId, sectionId) {
                 var data_obj = {course_id: courseKey},
                     data = JSON.stringify(data_obj);
 
@@ -44,11 +44,17 @@
                 }).done(function(response) {
                     // If we successfully enrolled, redirect the user
                     // to the next page (usually the student dashboard or payment flow)
-                    if (response.redirect_destination) {
+
+                    var url = `${window.location.origin}/courses/${courseKey}/courseware/${chapterId}/${sectionId}`
+                    window.location.href = url
+
+                    /**
+                     * if (response.redirect_destination) {
                         this.redirect(response.redirect_destination);
                     } else if (redirectUrl) {
                         this.redirect(redirectUrl);
                     }
+                     */
                 });
             },
 

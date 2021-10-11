@@ -37,16 +37,16 @@
                         this.redirect(responseData.user_message_url);
                     } else {
                         // Otherwise, redirect the user to the next page.
-                        if (redirectUrl) {
-                            this.redirect(redirectUrl);
-                        }
+                        //if (redirectUrl) {
+                            //this.redirect(redirectUrl);
+                        //}
+                        this.redirectToSectionDetail(courseKey, chapterId, sectionId)
                     }
                 }).done(function(response) {
                     // If we successfully enrolled, redirect the user
                     // to the next page (usually the student dashboard or payment flow)
 
-                    var url = `${window.location.origin}/courses/${courseKey}/courseware/${chapterId}/${sectionId}`
-                    window.location.href = url
+                    this.redirectToSectionDetail(courseKey, chapterId, sectionId)
 
                     /**
                      * if (response.redirect_destination) {
@@ -62,6 +62,14 @@
              * Redirect to a URL.  Mainly useful for mocking out in tests.
              * @param  {string} url The URL to redirect to.
              */
+
+            redirectToSectionDetail: function(courseKey, chapterId, sectionId) {
+
+                var url = `${window.location.origin}/courses/${courseKey}/courseware/${chapterId}/${sectionId}`
+                window.location.href = url
+
+            },
+
             redirect: function(url) {
                 window.location.href = url;
             }

@@ -27,6 +27,8 @@ from openedx.core.djangoapps.enrollments.views import EnrollmentCrossDomainSessi
 from openedx.core.djangoapps.user_api.preferences.api import update_email_opt_in
 from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiveUser
 
+from lms.djangoapps.verify_student.models import ManualVerification
+
 from ...constants import Messages
 from ...http import DetailResponse
 
@@ -137,6 +139,16 @@ class BasketsView(APIView):
 
         #Custom code
         self._enroll(course_key, user, "verified")
+
+
+        isUserVerified = ManualVerification.objects.get_or_create(
+            user = user,
+            status = 'approved',
+            defaults = {'name': user.profile.name}
+        )
+
+        print('isUserVerified')
+        print(isUserVerified)
 
         return HttpResponse(
             reverse('dashboard')

@@ -4,8 +4,13 @@ Signal handler for enabling/disabling self-generated certificates based on the c
 
 import logging
 
+import requests
+import json
+import time, datetime
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from requests.api import request
 
 from common.djangoapps.course_modes import api as modes_api
 from common.djangoapps.course_modes.models import CourseMode
@@ -78,6 +83,7 @@ def listen_for_passing_grade(sender, user, course_id, **kwargs):  # pylint: disa
     Listen for a learner passing a course, send cert generation task,
     downstream signal from COURSE_GRADE_CHANGED
     """
+    print("working_in signals>listen_for_passing_grade")
     if not auto_certificate_generation_enabled():
         return
 
@@ -185,6 +191,7 @@ def _fire_ungenerated_certificate_task(user, course_key, expected_verification_s
     traffic to workers.
     """
 
+    print("working_in signals>_fire_ungenerated_certificate_task")
     message = 'Entered into Ungenerated Certificate task for {user} : {course}'
     log.info(message.format(user=user.id, course=course_key))
 
@@ -199,10 +206,22 @@ def _fire_ungenerated_certificate_task(user, course_key, expected_verification_s
     enrollment_mode, __ = CourseEnrollment.enrollment_mode_for_user(user, course_key)
     cert = GeneratedCertificate.certificate_for_student(user, course_key)
 
+    print("userInfo")
+    print(vars(user))
+    print("username" + user.username)
+    print("first_name" + user.first_name)
+    print("last_name" + user.last_name)
+    print("certificateID_fire_ungenerated_certificate_task")
+
     generate_learner_certificate = (
         enrollment_mode in allowed_enrollment_modes_list and (
             cert is None or cert.status == CertificateStatuses.unverified)
     )
+
+    if cert is not None and cert.verify_uuid != '':
+        res = generate_custom_certificate(user, cert.verify_uuid, course_key)
+        print("custom_certificate_generation_response")
+        print(res)
 
     if generate_learner_certificate:
         kwargs = {
@@ -217,3 +236,25 @@ def _fire_ungenerated_certificate_task(user, course_key, expected_verification_s
     message = 'Certificate Generation task failed for {user} : {course}'
     log.info(message.format(user=user.id, course=course_key))
     return False
+
+def generate_custom_certificate(user, cert_id, course_id):
+    headers = {'Content-Type': 'application/json', 'apikey': '06642ecb-036d-4428-85a4-56b1428ec740'}
+    url = 'https://sff-cert-api.pagewerkz.com/api/v1/certs'
+    candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course.json'
+    courses_response = requests.get(candidate_courses_url)
+    courses_json = courses_response.json()
+
+    for course_obj in courses_json:
+        if course_obj.get('course_id') == course_id:
+            cert_data = course_obj.get('cert_data')
+            cert_data['username'] = user.username
+            cert_data['cert_id'] = cert_id
+            cert_data['participantName'] = user.first_name + " " + user.last_name
+            cert_data['participantEmail'] = user.email
+            cert_data['issuanceDate'] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
+            response = requests.post(url, data=json.dumps(cert_data), headers=headers)
+            return response
+
+    return ""
+
+

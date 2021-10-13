@@ -245,7 +245,7 @@ def generate_custom_certificate(user, cert_id, course_id):
     courses_json = courses_response.json()
 
     for course_obj in courses_json:
-        if course_obj.get('course_id') == course_id:
+        if str(course_obj.get('course_id')) == str(course_id):
             cert_data = course_obj.get('cert_data')
             cert_data['username'] = user.username
             cert_data['cert_id'] = cert_id
@@ -253,6 +253,8 @@ def generate_custom_certificate(user, cert_id, course_id):
             cert_data['participantEmail'] = user.email
             cert_data['issuanceDate'] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
             response = requests.post(url, data=json.dumps(cert_data), headers=headers)
+            print("certificate generation response")
+            print(response)
             return response
 
     return ""

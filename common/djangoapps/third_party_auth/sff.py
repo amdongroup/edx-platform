@@ -15,14 +15,14 @@ class SFFOAuth2(BaseOAuth2):  # pylint: disable=abstract-method
     name = "sff-oauth2"
     SUCCEED = True  # You can patch this during tests in order to control whether or not login works
 
-    PROVIDER_URL = "https://showcase-dev.gevme.com"
+    PROVIDER_URL = "https://gevme.com"
     AUTHORIZE_URL = "/page/oauth"  # '/oauth2/authorize' usually is default value
     GET_TOKEN_URL = "/oauth2/v1/token"  # '/oauth2/token' usually is default value
     ID_KEY = "id"  # unique marker which could be taken from the SSO response
     USER_DATA_URL = "/oauth2/v1/userinfo"  # '/api/current-user/' some url similar to the example
 
     AUTHORIZATION_URL = urllib.parse.urljoin(PROVIDER_URL, AUTHORIZE_URL)
-    ACCESS_TOKEN_URL = 'https://live-dev.gevme.com/v1/livestream/integrations/oauth/authorize'
+    ACCESS_TOKEN_URL = 'https://live.gevme.com/v1/livestream/integrations/oauth/authorize'
     # DEFAULT_SCOPE = settings.FEATURES.get('SCOPE')  # extend the scope of the provided permissions.
     DEFAULT_SCOPE = None
     REDIRECT_STATE = False

@@ -90,7 +90,10 @@ if full_name != " ":
                                             print("progress_certificate_url")
                                             print(certificate_data.cert_web_view_url)
                                             external_cert_id = certificate_data.cert_web_view_url.replace('/certificates/', '')
-                                            external_cert_web_view_url = 'https://exts-dev.stemwerkz.org/open-edx-cert/' + external_cert_id
+                                            <!--
+                                                https://exts-dev.stemwerkz.org/open-edx-cert/ #Dev_URL
+                                            -->
+                                            external_cert_web_view_url = 'https://sff.apixoxygen.com/certificate/' + external_cert_id
                                     %>
                                     %if certificate_data.cert_web_view_url:
                                     <a class="btn" href="${external_cert_web_view_url}" rel="noopener" target="_blank">${_("View Certificate")} <span class="sr">${_("Opens in a new browser window")}</span></a>

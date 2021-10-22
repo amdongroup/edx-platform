@@ -240,7 +240,8 @@ def _fire_ungenerated_certificate_task(user, course_key, expected_verification_s
 def generate_custom_certificate(user, cert_id, course_id):
     headers = {'Content-Type': 'application/json', 'apikey': '06642ecb-036d-4428-85a4-56b1428ec740'}
     url = 'https://sff-cert-api.pagewerkz.com/api/v1/certs'
-    candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course.json'
+    candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course.json' #Live_Server
+    #candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course.json' #Dev_Server
     courses_response = requests.get(candidate_courses_url)
     courses_json = courses_response.json()
 

@@ -67,6 +67,8 @@ from ..permissions import MASQUERADE_AS_STUDENT
 from ..toggles import courseware_legacy_is_visible, courseware_mfe_is_advertised
 from .views import CourseTabView
 
+from lms.djangoapps.certificates import api as certs_api
+
 log = logging.getLogger("edx.courseware.views.index")
 
 TEMPLATE_IMPORTS = {'urllib': urllib}
@@ -132,9 +134,23 @@ class CoursewareIndex(View):
                     depth=CONTENT_DEPTH,
                     check_if_enrolled=True,
                     check_if_authenticated=True
-                )
+                ) 
                 self.course_overview = CourseOverview.get_from_id(self.course.id)
                 self.is_staff = has_access(request.user, 'staff', self.course)
+
+                #Custom Code
+                course_grades = CourseGradeFactory().read(request.user, self.course)
+                self.overall_percentage = course_grades.percent * 100
+
+                print("printing_cert_info")
+
+                #cert_info = cert_info(request.user, self.course)
+                print("testing_cert_info_for_user")
+                cert_info_for_user = certs_api.get_certificate_for_user(request.user.username, self.course_key)
+                #print("testing_cert_info_for_user")
+                #print(cert_info)
+                print(request.user)
+                print(cert_info_for_user)
 
                 # There's only one situation where we want to show the public view
                 if (
@@ -443,6 +459,7 @@ class CoursewareIndex(View):
             'sequence_title': None,
             'disable_accordion': not DISABLE_COURSE_OUTLINE_PAGE_FLAG.is_enabled(self.course.id),
             'show_search': show_search,
+            'overall_percentage': self.overall_percentage
         }
         courseware_context.update(
             get_experiment_user_metadata_context(

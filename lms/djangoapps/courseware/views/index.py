@@ -140,7 +140,7 @@ class CoursewareIndex(View):
 
                 #Custom Code
                 course_grades = CourseGradeFactory().read(request.user, self.course)
-                self.overall_percentage = course_grades.percent * 100
+                self.overall_percentage = int(course_grades.percent * 100)
                 self.available_cert_id = ''
 
                 print("printing_cert_info")

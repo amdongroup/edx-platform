@@ -143,10 +143,10 @@ class CoursewareIndex(View):
                 self.overall_percentage = int(course_grades.percent * 100)
                 self.available_cert_id = ''
 
-                print("printing_cert_info")
+                print("printing_cert_info v3")
 
                 #cert_info = cert_info(request.user, self.course)
-                print("testing_cert_info_for_user")
+                print("testing_cert_info_for_user v3")
                 cert_info_for_user = certs_api.get_certificate_for_user(request.user.username, self.course_key)
 
                 if cert_info_for_user:

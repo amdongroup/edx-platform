@@ -149,7 +149,7 @@ class CoursewareIndex(View):
                 print("testing_cert_info_for_user")
                 cert_info_for_user = certs_api.get_certificate_for_user(request.user.username, self.course_key)
 
-                if cert_info_for_user:
+                if cert_info_for_user and cert_info_for_user["download_url"]:
                     self.available_cert_id = cert_info_for_user["download_url"].replace('/certificates/', '')
 
                 # There's only one situation where we want to show the public view

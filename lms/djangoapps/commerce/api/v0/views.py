@@ -2,6 +2,7 @@
 
 
 import logging
+from django.http.response import HttpResponse
 
 from django.urls import reverse
 from edx_rest_api_client import exceptions
@@ -24,6 +25,8 @@ from openedx.core.djangoapps.enrollments.api import add_enrollment
 from openedx.core.djangoapps.enrollments.views import EnrollmentCrossDomainSessionAuth
 from openedx.core.djangoapps.user_api.preferences.api import update_email_opt_in
 from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiveUser
+
+from lms.djangoapps.verify_student.models import ManualVerification
 
 from ...constants import Messages
 from ...http import DetailResponse
@@ -117,6 +120,7 @@ class BasketsView(APIView):
         # to track selection.
         honor_mode = CourseMode.mode_for_course(course_key, CourseMode.HONOR)
         audit_mode = CourseMode.mode_for_course(course_key, CourseMode.AUDIT)
+        verified_mode = CourseMode.mode_for_course(course_key, CourseMode.VERIFIED)
 
         # Check to see if the User has an entitlement and enroll them if they have one for this course
         if CourseEntitlement.check_for_existing_entitlement_and_enroll(user=user, course_run_key=course_key):
@@ -131,6 +135,29 @@ class BasketsView(APIView):
         default_enrollment_mode = audit_mode or honor_mode
         course_name = None
         course_announcement = None
+
+        #Custom code
+        if verified_mode == None:
+            self._enroll(course_key, user, "audit")
+
+        else:
+            self._enroll(course_key, user, "verified")
+
+
+        isUserVerified = ManualVerification.objects.get_or_create(
+            user = user,
+            status = 'approved',
+            defaults = {'name': user.profile.name}
+        )
+
+        print('isUserVerified')
+        print(isUserVerified)
+
+        return HttpResponse(
+            reverse('dashboard')
+        )
+
+
         if course is not None:
             course_name = course.display_name
             course_announcement = course.announcement

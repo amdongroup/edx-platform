@@ -4,8 +4,13 @@ Signal handler for enabling/disabling self-generated certificates based on the c
 
 import logging
 
+import requests
+import json
+import time, datetime
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from requests.api import request
 
 from common.djangoapps.course_modes import api as modes_api
 from common.djangoapps.student.models import CourseEnrollment
@@ -69,6 +74,7 @@ def listen_for_passing_grade(sender, user, course_id, **kwargs):  # pylint: disa
 
     If needed, generate a certificate task.
     """
+    print("working_in signals>listen_for_passing_grade")
     if not auto_certificate_generation_enabled():
         return
 
@@ -129,6 +135,111 @@ def _listen_for_enrollment_mode_change(sender, user, course_key, mode, **kwargs)
     if the user has moved to the audit track.
     """
     if modes_api.is_eligible_for_certificate(mode):
-        log.info(f'Attempt will be made to generate a course certificate for {user.id} : {course_key} since the '
-                 f'enrollment mode is now {mode}.')
-        generate_certificate_task(user, course_key)
+        # log.info(f'Attempt will be made to generate a course certificate for {user.id} : {course_key} since the '
+        #          f'enrollment mode is now {mode}.')
+        # generate_certificate_task(user, course_key)
+        if can_generate_certificate_task(user, course_key):
+            log.info(f'{course_key} is using V2 certificates. Attempt will be made to generate a V2 certificate for '
+                     f'{user.id} since the enrollment mode is now {mode}.')
+            generate_certificate_task(user, course_key)
+
+
+def _fire_ungenerated_certificate_task(user, course_key, expected_verification_status=None):
+    """
+    Helper function to fire certificate generation task.
+    Auto-generation of certificates is available for following course modes:
+        1- VERIFIED
+        2- CREDIT_MODE
+        3- PROFESSIONAL
+        4- NO_ID_PROFESSIONAL_MODE
+
+    Certificate generation task is fired to either generate a certificate
+    when there is no generated certificate for user in a particular course or
+    update a certificate if it has 'unverified' status.
+
+    Task is fired to attempt an update to a certificate
+    with 'unverified' status as this method is called when a user is
+    successfully verified, any certificate associated
+    with such user can now be verified.
+
+    NOTE: Purpose of restricting other course modes (HONOR and AUDIT) from auto-generation is to reduce
+    traffic to workers.
+    """
+
+    print("working_in signals>_fire_ungenerated_certificate_task")
+    message = 'Entered into Ungenerated Certificate task for {user} : {course}'
+    log.info(message.format(user=user.id, course=course_key))
+
+    allowed_enrollment_modes_list = [
+        CourseMode.VERIFIED,
+        CourseMode.CREDIT_MODE,
+        CourseMode.PROFESSIONAL,
+        CourseMode.NO_ID_PROFESSIONAL_MODE,
+        CourseMode.MASTERS,
+        CourseMode.EXECUTIVE_EDUCATION,
+    ]
+    enrollment_mode, __ = CourseEnrollment.enrollment_mode_for_user(user, course_key)
+    cert = GeneratedCertificate.certificate_for_student(user, course_key)
+
+    print("userInfo")
+    print(vars(user))
+    print("username" + user.username)
+    print("first_name" + user.first_name)
+    print("last_name" + user.last_name)
+    print("certificateID_fire_ungenerated_certificate_task")
+
+    generate_learner_certificate = (
+        enrollment_mode in allowed_enrollment_modes_list and (
+            cert is None or cert.status == CertificateStatuses.unverified)
+    )
+
+    if cert is not None and cert.verify_uuid != '':
+        res = generate_custom_certificate(user, cert.verify_uuid, course_key)
+        print("custom_certificate_generation_response")
+        print(res)
+
+    if generate_learner_certificate:
+        kwargs = {
+            'student': str(user.id),
+            'course_key': str(course_key)
+        }
+        if expected_verification_status:
+            kwargs['expected_verification_status'] = str(expected_verification_status)
+        generate_certificate.apply_async(countdown=CERTIFICATE_DELAY_SECONDS, kwargs=kwargs)
+        return True
+
+    message = 'Certificate Generation task failed for {user} : {course}'
+    log.info(message.format(user=user.id, course=course_key))
+    return False
+
+def generate_custom_certificate(user, cert_id, course_id):
+    headers = {'Content-Type': 'application/json', 'apikey': '06642ecb-036d-4428-85a4-56b1428ec740'}
+    # url = 'https://sff-cert-api.pagewerkz.com/api/v1/certs'
+    url = 'https://cert-api.apixoxygen.com/api/v1/certs'
+    candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course.json' #Live_Server
+    #candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course.json' #Dev_Server
+    courses_response = requests.get(candidate_courses_url)
+    courses_json = courses_response.json()
+
+    for course_obj in courses_json:
+        print(course_obj.get('course_id'))
+        print(course_id)
+        print('is course_obj_id and course_id ==')
+        print(str(course_obj.get('course_id')) == str(course_id))
+        print(str(course_obj.get('course_id')) == str(course_id))
+        if str(course_obj.get('course_id')) == str(course_id):
+            cert_data = course_obj.get('cert_data')
+            cert_data['username'] = user.username
+            cert_data['cert_id'] = cert_id
+            cert_data['participantName'] = user.first_name + " " + user.last_name
+            cert_data['participantEmail'] = user.email
+            cert_data['issuanceDate'] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
+            print(cert_data)
+            response = requests.post(url, data=json.dumps(cert_data), headers=headers)
+            print('certificate generation response')
+            print(vars(response))
+            return response
+
+    return ""
+
+

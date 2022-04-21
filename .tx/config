@@ -67,15 +67,26 @@ source_file = conf/locale/en/LC_MESSAGES/edx_proctoring_proctortrack.po
 source_lang = en
 type = PO
 
+<<<<<<< HEAD
 [open-edx-releases.release-maple]
+=======
+[open-edx-releases.release-lilac]
+>>>>>>> sff
 file_filter = conf/locale/<lang>/LC_MESSAGES/django.po
 source_file = conf/locale/en/LC_MESSAGES/django.po
 source_lang = en
 type = PO
 
+<<<<<<< HEAD
 [open-edx-releases.release-maple-js]
+=======
+[open-edx-releases.release-lilac-js]
+>>>>>>> sff
 file_filter = conf/locale/<lang>/LC_MESSAGES/djangojs.po
 source_file = conf/locale/en/LC_MESSAGES/djangojs.po
 source_lang = en
 type = PO
+<<<<<<< HEAD
 
+=======
+>>>>>>> sff

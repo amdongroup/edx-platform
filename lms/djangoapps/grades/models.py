@@ -16,7 +16,6 @@ from hashlib import sha1
 
 from django.apps import apps
 from django.db import models, IntegrityError, transaction
-
 from django.utils.timezone import now
 from lazy import lazy
 from model_utils.models import TimeStampedModel

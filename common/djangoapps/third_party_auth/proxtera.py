@@ -1,7 +1,7 @@
 """
 ProxteraOAuth2: Proxtera OAuth2
 """
-import logging
+
 import urllib
 from social_core.backends.oauth import BaseOAuth2
 from social_core.exceptions import AuthFailed
@@ -30,9 +30,7 @@ class ProxteraOAuth2(BaseOAuth2):
     ACCESS_TOKEN_URL = urllib.parse.urljoin(PROVIDER_URL, GET_TOKEN_URL)
     # DEFAULT_SCOPE = settings.FEATURES.get('SCOPE')  # extend the scope of the provided permissions.
     DEFAULT_SCOPE = ['email']
-    # REDIRECT_STATE = False
-    STATE_PARAMETER = False
-    RESPONSE_TYPE = 'code'
+    REDIRECT_STATE = False
     ACCESS_TOKEN_METHOD = 'POST'  # default method is 'GET'
 
     skip_email_verification = True
@@ -55,7 +53,6 @@ class ProxteraOAuth2(BaseOAuth2):
         return super(ProxteraOAuth2, self).setting(name, default=default)
 
     def auth_params(self, state=None):
-        logging.warning('>>> auth_params')
         client_id, client_secret = self.get_key_and_secret()
         params = {
             'client_id': client_id,
@@ -66,19 +63,25 @@ class ProxteraOAuth2(BaseOAuth2):
         }
         return params
 
-    def auth_complete_params(self, state=None):
-        logging.warning('>>> auth_complete_params')
-        client_id, client_secret = self.get_key_and_secret()
-        return {
-            'grant_type': 'authorization_code',  # request auth code
-            'code': self.data.get('code', ''),  # server response code
-            'client_id': client_id,
-            'redirect_uri': self.get_redirect_uri(state)[:-1]
-        }
+    # def auth_complete_params(self, state=None):
+    #     client_id, client_secret = self.get_key_and_secret()
+    #     # # Sample Request
+    #     # {
+    #     #     "clientId": "9ce7a185f5c84dd5",
+    #     #     "clientSecret": "42fb7717573f473e96af53367bae0d66aab",
+    #     #     "redirectUri": "http://localhost:4009",
+    #     #     "code": "xxx",
+    #     #     "grantType": "authorization_code"
+    #     # }
+    #     return {
+    #         'grantType': 'authorization_code',  # request auth code
+    #         'code': self.data.get('authorizationCode', ''),  # server response code
+    #         'clientId': client_id,
+    #         'clientSecret': client_secret,
+    #         'redirectUri': self.get_redirect_uri(state)[:-1]
+    #     }
 
     def get_user_details(self, response):
-        logging.warning('>>> get_user_details')
-        logging.warning(response)
         """
         Return user details from SSO account.
         """
@@ -92,7 +95,6 @@ class ProxteraOAuth2(BaseOAuth2):
 
     @handle_http_errors
     def do_auth(self, access_token, *args, **kwargs):
-        logging.warning('>>> do_auth')
         """
         Finish the auth process once the access_token was retrieved.
         """
@@ -104,7 +106,6 @@ class ProxteraOAuth2(BaseOAuth2):
 
     @handle_http_errors
     def auth_complete(self, *args, **kwargs):
-        logging.warning('>>> auth_complete')
         """
         Complete loging process, must return user instance.
         """
@@ -114,7 +115,6 @@ class ProxteraOAuth2(BaseOAuth2):
         return super(ProxteraOAuth2, self).auth_complete(*args, **kwargs)
 
     def user_data(self, access_token, *args, **kwargs):
-        logging.warning('>>> user_data')
         """
         Grab user profile information from SSO.
         """
@@ -132,7 +132,6 @@ class ProxteraOAuth2(BaseOAuth2):
     #     )
 
     def get_user_id(self, details, response):
-        logging.warning('>>> get_user_id')
         """
         Return a unique ID for the current user, by default from server response.
         """

@@ -55,9 +55,11 @@ class ProxteraOAuth2(BaseOAuth2):
     def auth_params(self, state=None):
         client_id, client_secret = self.get_key_and_secret()
         params = {
-            'clientId': client_id,
-            'clientSecret': client_secret,
-            'redirectUri': self.get_redirect_uri(state)[:-1]
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'redirect_uri': self.get_redirect_uri(state)[:-1],
+            'scope': 'email',
+            'response_type': 'code'
         }
         return params
 

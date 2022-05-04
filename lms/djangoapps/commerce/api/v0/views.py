@@ -2,6 +2,10 @@
 
 
 import logging
+
+import requests
+import json
+
 from django.http.response import HttpResponse
 
 from django.urls import reverse
@@ -27,6 +31,8 @@ from openedx.core.djangoapps.user_api.preferences.api import update_email_opt_in
 from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiveUser
 
 from lms.djangoapps.verify_student.models import ManualVerification
+
+from openedx.features.course_experience.url_helpers import make_learning_mfe_courseware_url
 
 from ...constants import Messages
 from ...http import DetailResponse
@@ -87,11 +93,27 @@ class BasketsView(APIView):
                     'Failed to handle marketing opt-in flag: user="%s", course="%s"', user.username, course_key
                 )
 
+    def _has_user_purchased_course(self, username, enrollingCourseId):
+        
+        purchased_courses_url = "https://dev-oxygen-proxtera.apixoxygen.com/api/courses/" + username
+        purchased_courses = requests.get(purchased_courses_url).json()
+        user_enrolled = False
+
+        for purchased_course in purchased_courses:
+            if str(enrollingCourseId) == str(purchased_course):
+                user_enrolled = True
+
+        return user_enrolled
+
+
     def post(self, request, *args, **kwargs):  # lint-amnesty, pylint: disable=unused-argument
         """
         Attempt to enroll the user.
         """
         user = request.user
+        sectionId = request.data.get("section_id")
+        chapterId = request.data.get("chapter_id")
+
         valid, course_key, error = self._is_data_valid(request)
         if not valid:
             return DetailResponse(error, status=HTTP_406_NOT_ACCEPTABLE)
@@ -136,25 +158,44 @@ class BasketsView(APIView):
         course_name = None
         course_announcement = None
 
+        enrollment_response = {}
+        learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, sectionId, chapterId)
+
         #Custom code
         if verified_mode == None:
             self._enroll(course_key, user, "audit")
+            enrollment_response['mode'] = 'audit'
+            enrollment_response['message'] = 'success'
+            enrollment_response['redirect_url'] = learning_mfe_courseware_url
+            return HttpResponse(
+                json.dumps(enrollment_response),
+                content_type="application/json"
+            )
 
-        else:
+        elif self._has_user_purchased_course(user.username, course_key):
             self._enroll(course_key, user, "verified")
+            
+            isUserVerified = ManualVerification.objects.get_or_create(
+                user = user,
+                status = 'approved',
+                defaults = {'name': user.profile.name}
+            )
 
+            print('isUserVerified')
+            print(isUserVerified)
 
-        isUserVerified = ManualVerification.objects.get_or_create(
-            user = user,
-            status = 'approved',
-            defaults = {'name': user.profile.name}
-        )
+            enrollment_response['mode'] = 'verified'
+            enrollment_response['message'] = 'success'
+            enrollment_response['redirect_url'] = learning_mfe_courseware_url
+            return HttpResponse(
+                json.dumps(enrollment_response),
+                content_type="application/json"
+            )
 
-        print('isUserVerified')
-        print(isUserVerified)
-
+        enrollment_response['message'] = 'error'
         return HttpResponse(
-            reverse('dashboard')
+            json.dumps(enrollment_response),
+                content_type="application/json"
         )
 
 

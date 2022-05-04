@@ -17,7 +17,11 @@
              * @param  {string} redirectUrl The URL to redirect to once enrollment completes.
              */
             enroll: function(courseKey, redirectUrl, chapterId, sectionId) {
-                var data_obj = {course_id: courseKey},
+                var data_obj = {
+                    course_id: courseKey,
+                    section_id: sectionId,
+                    chapter_id: chapterId
+                },
                     data = JSON.stringify(data_obj);
 
                 $.ajax({
@@ -40,13 +44,20 @@
                         //if (redirectUrl) {
                             //this.redirect(redirectUrl);
                         //}
-                        this.redirectToSectionDetail(courseKey, chapterId, sectionId)
+                        //this.redirectToSectionDetail(courseKey, chapterId, sectionId)
+                        this.redirectToDashboard()
                     }
                 }).done(function(response) {
                     // If we successfully enrolled, redirect the user
                     // to the next page (usually the student dashboard or payment flow)
 
-                    this.redirectToSectionDetail(courseKey, chapterId, sectionId)
+                    console.log(response)
+                    if(response.message == "success") {
+                        //this.redirectToSectionDetail(courseKey, chapterId, sectionId)
+                        this.redirect(response.redirect_url)
+                    } else {
+                        this.redirectToDashboard()
+                    }
 
                     /**
                      * if (response.redirect_destination) {
@@ -68,6 +79,11 @@
                 var url = `${window.location.origin}/courses/${courseKey}/courseware/${chapterId}/${sectionId}`
                 window.location.href = url
 
+            },
+
+            redirectToDashboard: function() {
+                var url = `${window.location.origin}/dashboard`
+                window.location.href = url
             },
 
             redirect: function(url) {

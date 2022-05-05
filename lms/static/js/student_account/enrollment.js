@@ -59,13 +59,11 @@
                         this.redirectToDashboard()
                     }
 
-                    /**
-                     * if (response.redirect_destination) {
-                        this.redirect(response.redirect_destination);
-                    } else if (redirectUrl) {
-                        this.redirect(redirectUrl);
-                    }
-                     */
+                    // if (response.redirect_destination) {
+                    //     this.redirect(response.redirect_destination);
+                    // } else if (redirectUrl) {
+                    //     this.redirect(redirectUrl);
+                    // }
                 });
             },
 
@@ -74,12 +72,12 @@
              * @param  {string} url The URL to redirect to.
              */
 
-            redirectToSectionDetail: function(courseKey, chapterId, sectionId) {
+            // redirectToSectionDetail: function(courseKey, chapterId, sectionId) {
 
-                var url = `${window.location.origin}/courses/${courseKey}/courseware/${chapterId}/${sectionId}`
-                window.location.href = url
+            //     var url = `${window.location.origin}/courses/${courseKey}/courseware/${chapterId}/${sectionId}`
+            //     window.location.href = url
 
-            },
+            // },
 
             redirectToDashboard: function() {
                 var url = `${window.location.origin}/dashboard`

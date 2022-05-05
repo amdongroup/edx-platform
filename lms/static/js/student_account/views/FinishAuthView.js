@@ -50,8 +50,6 @@
                     enrollmentAction: $.url('?enrollment_action'),
                     courseId: $.url('?course_id'),
                     courseMode: $.url('?course_mode'),
-                    chapterId: $.url('?chapter_id'),
-                    sectionId: $.url('?section_id'),
                     emailOptIn: $.url('?email_opt_in'),
                     purchaseWorkflow: $.url('?purchase_workflow')
                 };
@@ -63,8 +61,6 @@
                 this.courseId = queryParams.courseId;
                 this.enrollmentAction = queryParams.enrollmentAction;
                 this.courseMode = queryParams.courseMode;
-                this.chapterId = queryParams.chapterId;
-                this.sectionId = queryParams.sectionId;
                 this.emailOptIn = queryParams.emailOptIn;
                 this.nextUrl = this.urls.defaultNextUrl;
                 this.purchaseWorkflow = queryParams.purchaseWorkflow;
@@ -152,7 +148,7 @@
 
                     /* Attempt to auto-enroll the user in a free mode of the course,
                     then redirect to the next location. */
-                    enrollmentInterface.enroll(courseId, redirectUrl, this.chapterId, this.sectionId);
+                    enrollmentInterface.enroll(courseId, redirectUrl);
                 } else if (this.enrollmentAction === 'add_to_cart' && this.courseId) {
                     /*
                     If this is a paid course, add it to the shopping cart and redirect

@@ -151,7 +151,6 @@ class BasketsView(APIView):
         # to track selection.
         honor_mode = CourseMode.mode_for_course(course_key, CourseMode.HONOR)
         audit_mode = CourseMode.mode_for_course(course_key, CourseMode.AUDIT)
-        verified_mode = CourseMode.mode_for_course(course_key, CourseMode.VERIFIED)
 
         # Check to see if the User has an entitlement and enroll them if they have one for this course
         if CourseEntitlement.check_for_existing_entitlement_and_enroll(user=user, course_run_key=course_key):

@@ -4,13 +4,8 @@ Signal handler for enabling/disabling self-generated certificates based on the c
 
 import logging
 
-import requests
-import json
-import time, datetime
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from requests.api import request
 
 from common.djangoapps.course_modes import api as modes_api
 from common.djangoapps.student.models import CourseEnrollment
@@ -74,7 +69,6 @@ def listen_for_passing_grade(sender, user, course_id, **kwargs):  # pylint: disa
 
     If needed, generate a certificate task.
     """
-    print("working_in signals>listen_for_passing_grade")
     if not auto_certificate_generation_enabled():
         return
 
@@ -135,4 +129,6 @@ def _listen_for_enrollment_mode_change(sender, user, course_key, mode, **kwargs)
     if the user has moved to the audit track.
     """
     if modes_api.is_eligible_for_certificate(mode):
+        log.info(f'Attempt will be made to generate a course certificate for {user.id} : {course_key} since the '
+                 f'enrollment mode is now {mode}.')
         generate_certificate_task(user, course_key)

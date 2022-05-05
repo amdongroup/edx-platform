@@ -12,7 +12,7 @@ from django.urls import reverse
 from edx_rest_api_client import exceptions
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from opaque_keys import InvalidKeyError
-from opaque_keys.edx.keys import CourseKey
+from opaque_keys.edx.keys import CourseKey, UsageKey
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_406_NOT_ACCEPTABLE, HTTP_409_CONFLICT
@@ -111,10 +111,13 @@ class BasketsView(APIView):
         Attempt to enroll the user.
         """
         user = request.user
-        sectionId = request.data.get("section_id")
-        chapterId = request.data.get("chapter_id")
+        sectionId = UsageKey.from_string(request.data.get("section_id"))
+        chapterId = UsageKey.from_string(request.data.get("chapter_id"))
+        enrollment_response = {}
 
         valid, course_key, error = self._is_data_valid(request)
+        learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, sectionId, chapterId)
+
         if not valid:
             return DetailResponse(error, status=HTTP_406_NOT_ACCEPTABLE)
 
@@ -127,8 +130,14 @@ class BasketsView(APIView):
         course_id = str(course_key)
         enrollment = CourseEnrollment.get_enrollment(user, course_key)
         if enrollment and enrollment.is_active:
-            msg = Messages.ENROLLMENT_EXISTS.format(course_id=course_id, username=user.username)
-            return DetailResponse(msg, status=HTTP_409_CONFLICT)
+            #msg = Messages.ENROLLMENT_EXISTS.format(course_id=course_id, username=user.username)
+            #return DetailResponse(msg, status=HTTP_409_CONFLICT)
+            enrollment_response['message'] = 'success'
+            enrollment_response['redirect_url'] = learning_mfe_courseware_url
+            return HttpResponse(
+                json.dumps(enrollment_response),
+                content_type="application/json"
+            )
 
         # Check to see if enrollment for this course is closed.
         course = courses.get_course(course_key)
@@ -157,9 +166,6 @@ class BasketsView(APIView):
         default_enrollment_mode = audit_mode or honor_mode
         course_name = None
         course_announcement = None
-
-        enrollment_response = {}
-        learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, sectionId, chapterId)
 
         #Custom code
         if verified_mode == None:

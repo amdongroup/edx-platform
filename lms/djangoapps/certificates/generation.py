@@ -10,6 +10,8 @@ These methods should be called from tasks.
 import logging
 import requests
 from uuid import uuid4
+import json
+import time, datetime
 
 from lms.djangoapps.certificates.data import CertificateStatuses
 from lms.djangoapps.certificates.models import GeneratedCertificate
@@ -109,7 +111,7 @@ def send_cert_to_external_service(user, cert_id, course_id):
     url = 'https://sff-cert-api.pagewerkz.com/api/v1/certs'
     #url = 'https://cert-api.apixoxygen.com/api/v1/certs'
     #candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course.json' #Live_Server
-    candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course.json' #Dev_Server
+    candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json' #Dev_Server
     courses_response = requests.get(candidate_courses_url)
     courses_json = courses_response.json()
 

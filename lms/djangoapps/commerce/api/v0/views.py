@@ -32,7 +32,7 @@ from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiv
 
 from lms.djangoapps.verify_student.models import ManualVerification
 
-from openedx.features.course_experience.url_helpers import make_learning_mfe_courseware_url
+from openedx.features.course_experience.url_helpers import make_learning_mfe_courseware_url, get_learning_mfe_home_url
 
 from ...constants import Messages
 from ...http import DetailResponse
@@ -111,12 +111,18 @@ class BasketsView(APIView):
         Attempt to enroll the user.
         """
         user = request.user
-        sectionId = UsageKey.from_string(request.data.get("section_id"))
-        chapterId = UsageKey.from_string(request.data.get("chapter_id"))
+        sectionId = request.data.get("section_id")
+        chapterId = request.data.get("chapter_id")
         enrollment_response = {}
 
         valid, course_key, error = self._is_data_valid(request)
-        learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, sectionId, chapterId)
+        learning_mfe_courseware_url = ""
+
+        if sectionId is not None:
+            learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(sectionId), UsageKey.from_string(chapterId))
+
+        else:
+            learning_mfe_courseware_url = get_learning_mfe_home_url(course_key)
 
         if not valid:
             return DetailResponse(error, status=HTTP_406_NOT_ACCEPTABLE)
@@ -151,6 +157,7 @@ class BasketsView(APIView):
         # to track selection.
         honor_mode = CourseMode.mode_for_course(course_key, CourseMode.HONOR)
         audit_mode = CourseMode.mode_for_course(course_key, CourseMode.AUDIT)
+        verified_mode = CourseMode.mode_for_course(course_key, CourseMode.VERIFIED)
 
         # Check to see if the User has an entitlement and enroll them if they have one for this course
         if CourseEntitlement.check_for_existing_entitlement_and_enroll(user=user, course_run_key=course_key):

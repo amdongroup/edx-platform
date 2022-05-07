@@ -111,18 +111,23 @@ class BasketsView(APIView):
         Attempt to enroll the user.
         """
         user = request.user
-        sectionId = request.data.get("section_id")
-        chapterId = request.data.get("chapter_id")
+        subSectionId = request.data.get("sub_section_id")
+        unitId = request.data.get("unit_id")
         enrollment_response = {}
 
         valid, course_key, error = self._is_data_valid(request)
         learning_mfe_courseware_url = ""
 
-        if sectionId is not None:
-            learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(sectionId), UsageKey.from_string(chapterId))
-
+        if unitId:
+            learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId), UsageKey.from_string(unitId))
         else:
-            learning_mfe_courseware_url = get_learning_mfe_home_url(course_key)
+            learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId))
+
+        # if subSectionId is not None:
+        #     learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId), UsageKey.from_string(unitId))
+
+        # else:
+        #     learning_mfe_courseware_url = get_learning_mfe_home_url(course_key)
 
         if not valid:
             return DetailResponse(error, status=HTTP_406_NOT_ACCEPTABLE)

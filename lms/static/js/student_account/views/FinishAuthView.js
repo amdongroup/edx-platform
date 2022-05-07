@@ -23,7 +23,7 @@
  * - The specified 'nextUrl' if safe, or
  * - The dashboard
  */
-(function(define, undefined) {
+ (function(define, undefined) {
     'use strict';
     define([
         'jquery',
@@ -50,6 +50,8 @@
                     enrollmentAction: $.url('?enrollment_action'),
                     courseId: $.url('?course_id'),
                     courseMode: $.url('?course_mode'),
+                    subSectionId: $.url('?sub_section_id'),
+                    unitId: $.url('?unit_id'),
                     emailOptIn: $.url('?email_opt_in'),
                     purchaseWorkflow: $.url('?purchase_workflow')
                 };
@@ -61,6 +63,8 @@
                 this.courseId = queryParams.courseId;
                 this.enrollmentAction = queryParams.enrollmentAction;
                 this.courseMode = queryParams.courseMode;
+                this.subSectionId = queryParams.subSectionId;
+                this.unitId = queryParams.unitId;
                 this.emailOptIn = queryParams.emailOptIn;
                 this.nextUrl = this.urls.defaultNextUrl;
                 this.purchaseWorkflow = queryParams.purchaseWorkflow;
@@ -148,7 +152,7 @@
 
                     /* Attempt to auto-enroll the user in a free mode of the course,
                     then redirect to the next location. */
-                    enrollmentInterface.enroll(courseId, redirectUrl);
+                    enrollmentInterface.enroll(courseId, redirectUrl, this.subSectionId, this.unitId);
                 } else if (this.enrollmentAction === 'add_to_cart' && this.courseId) {
                     /*
                     If this is a paid course, add it to the shopping cart and redirect

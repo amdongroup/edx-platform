@@ -16,11 +16,11 @@
              * @param  {string} courseKey  Slash-separated course key.
              * @param  {string} redirectUrl The URL to redirect to once enrollment completes.
              */
-            enroll: function(courseKey, redirectUrl, chapterId, sectionId) {
+            enroll: function(courseKey, redirectUrl, subSectionId, unitId) {
                 var data_obj = {
                     course_id: courseKey,
-                    section_id: sectionId,
-                    chapter_id: chapterId
+                    sub_section_id: subSectionId,
+                    unit_id: unitId
                 },
                     data = JSON.stringify(data_obj);
 

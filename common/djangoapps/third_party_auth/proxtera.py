@@ -23,7 +23,9 @@ class ProxteraOAuth2(BaseOAuth2):
     GET_TOKEN_URL = "/oauth2/token"  # '/oauth2/token' usually is default value
     ID_KEY = "user_id"  # unique marker which could be taken from the SSO response
     USER_DATA_URL = "https://devauthapi.proxtera.app/oauth2/userinfo"  # '/api/current-user/' some url similar to the example
-
+    EXTRA_DATA = [
+        ('user_data', 'user_data')
+    ]
     AUTHORIZATION_URL = urllib.parse.urljoin(PROVIDER_URL, AUTHORIZE_URL)
     ACCESS_TOKEN_URL = urllib.parse.urljoin(PROVIDER_URL, GET_TOKEN_URL)
     DEFAULT_SCOPE = ['email']
@@ -39,12 +41,15 @@ class ProxteraOAuth2(BaseOAuth2):
         Return user details from SSO account.
         """
         data = response.get('data')
-        return {'username': data.get('user_id'),
-                'name': data.get('fullname'),
-                'fullname': data.get('fullname'),  
-                'email': data.get('email') or '',
-                'first_name': data.get('firstname'),
-                'last_name': data.get('lastname')}
+        return {
+            'username': data.get('user_id'),
+            'name': data.get('fullname'),
+            'fullname': data.get('fullname'),  
+            'email': data.get('email') or '',
+            'first_name': data.get('firstname'),
+            'last_name': data.get('lastname'),
+            'user_data':data
+        }
 
     @handle_http_errors
     def do_auth(self, access_token, *args, **kwargs):

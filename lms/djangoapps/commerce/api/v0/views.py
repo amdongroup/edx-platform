@@ -118,10 +118,13 @@ class BasketsView(APIView):
         valid, course_key, error = self._is_data_valid(request)
         learning_mfe_courseware_url = ""
 
-        if unitId:
-            learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId), UsageKey.from_string(unitId))
+        if subSectionId:
+            if unitId:
+                learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId), UsageKey.from_string(unitId))
+            else:
+                learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId))
         else:
-            learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId))
+            learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key)
 
         # if subSectionId is not None:
         #     learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId), UsageKey.from_string(unitId))

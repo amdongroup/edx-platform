@@ -19,6 +19,8 @@ from lms.djangoapps.certificates.utils import emit_certificate_event, get_prefer
 
 log = logging.getLogger(__name__)
 
+from social_django.models import UserSocialAuth
+
 
 def generate_course_certificate(user, course_key, status, enrollment_mode, course_grade, generation_mode):
     """
@@ -115,6 +117,32 @@ def send_cert_to_external_service(user, cert_id, course_id):
     courses_response = requests.get(candidate_courses_url)
     courses_json = courses_response.json()
 
+    communicationChannel = ""
+    participantPhone = {
+        "countryCode": "",
+        "phoneNumber" : ""
+    }
+
+    userSocialAuth = UserSocialAuth.objects.get(user=user)
+
+    print("User Social Auth")
+    print(userSocialAuth.extra_data)
+    print(userSocialAuth.extra_data.user_data)
+
+    if userSocialAuth.extra_data.user_data.preferred_communication_channel:
+        communicationChannel = userSocialAuth.extra_data.user_data.preferred_communication_channel
+        if communicationChannel == "sms":
+            participantPhone["countryCode"] = userSocialAuth.extra_data.user_data.country_code
+            participantPhone["phoneNumber"] = userSocialAuth.extra_data.user_data.phone_number
+
+    print(communicationChannel)
+    print(participantPhone)
+
+    #pprint(vars(userSocialAuth))
+    #TODO: handle user does not exists in UserSocialAuth model error
+    #pprint(vars(UserSocialAuth.objects.get(user=user)))
+    #print(len(UserSocialAuth.objects.all()))
+
     for course_obj in courses_json:
         print(course_obj.get('course_id'))
         print(course_id)
@@ -127,6 +155,8 @@ def send_cert_to_external_service(user, cert_id, course_id):
             cert_data['cert_id'] = cert_id
             cert_data['participantName'] = user.first_name + " " + user.last_name
             cert_data['participantEmail'] = user.email
+            cert_data['communicationChannel'] = communicationChannel
+            cert_data['participantPhone'] = participantPhone
             cert_data['issuanceDate'] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
             print(cert_data)
             response = requests.post(url, data=json.dumps(cert_data), headers=headers)

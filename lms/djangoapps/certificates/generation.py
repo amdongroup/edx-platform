@@ -132,11 +132,13 @@ def send_cert_to_external_service(user, cert_id, course_id):
     print(userSocialAuth.extra_data['user_data']['country_code'])
     #print(userSocialAuth.extra_data.user_data)
 
-    if userSocialAuth.extra_data['user_data']['preferred_communication_channel']:
+    if 'preferred_communication_channel' in userSocialAuth.extra_data['user_data']:
         communicationChannel = userSocialAuth.extra_data['user_data']['preferred_communication_channel']
         if communicationChannel == "sms":
-            participantPhone["countryCode"] = userSocialAuth.extra_data['user_data']['country_code']
-            participantPhone["phoneNumber"] = userSocialAuth.extra_data['user_data']['phone_number']
+            if 'country_code' in userSocialAuth.extra_data['user_data']:
+                participantPhone["countryCode"] = userSocialAuth.extra_data['user_data']['country_code']
+            if 'phone_number' in userSocialAuth.extra_data['user_data']:
+                participantPhone["phoneNumber"] = userSocialAuth.extra_data['user_data']['phone_number']
 
     print(communicationChannel)
     print(participantPhone)

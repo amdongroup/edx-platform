@@ -118,6 +118,7 @@ def send_cert_to_external_service(user, cert_id, course_id):
     courses_response = requests.get(candidate_courses_url)
     courses_json = courses_response.json()
 
+    participantName = ""
     communicationChannel = ""
     participantPhone = {
         "countryCode": "",
@@ -131,6 +132,9 @@ def send_cert_to_external_service(user, cert_id, course_id):
     print(userSocialAuth.extra_data['user_data'])
     print(userSocialAuth.extra_data['user_data']['country_code'])
     #print(userSocialAuth.extra_data.user_data)
+
+    if 'fullname' in userSocialAuth.extra_data['user_data']:
+        participantName = userSocialAuth.extra_data['user_data']['fullname']
 
     if 'preferred_communication_channel' in userSocialAuth.extra_data['user_data']:
         communicationChannel = userSocialAuth.extra_data['user_data']['preferred_communication_channel']
@@ -158,7 +162,7 @@ def send_cert_to_external_service(user, cert_id, course_id):
             cert_data = course_obj.get('cert_data')
             cert_data['username'] = user.username
             cert_data['cert_id'] = cert_id
-            cert_data['participantName'] = user.first_name + " " + user.last_name
+            cert_data['participantName'] = participantName #user.first_name + " " + user.last_name
             cert_data['participantEmail'] = user.email
             cert_data['communicationChannel'] = communicationChannel
             cert_data['participantPhone'] = participantPhone

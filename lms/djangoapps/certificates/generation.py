@@ -110,7 +110,8 @@ def _generate_certificate(user, course_key, status, enrollment_mode, course_grad
 #generate_custom_certificate
 def send_cert_to_external_service(user, cert_id, course_id):
     headers = {'Content-Type': 'application/json', 'apikey': '06642ecb-036d-4428-85a4-56b1428ec740'}
-    url = 'https://sff-cert-api.pagewerkz.com/api/v2/certs'
+    url = 'https://stg-cert-api.apixoxygen.com/api/v2/certs'
+    #url = 'https://sff-cert-api.pagewerkz.com/api/v2/certs'
     #url = 'https://sff-cert-api.pagewerkz.com/api/v1/certs'
     #url = 'https://cert-api.apixoxygen.com/api/v1/certs'
     #candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course.json' #Live_Server

@@ -126,39 +126,34 @@ def send_cert_to_external_service(user, cert_id, course_id):
         "phoneNumber" : ""
     }
 
-    userSocialAuth = UserSocialAuth.objects.get(user=user)
+    try:
+        userSocialAuth = UserSocialAuth.objects.get(user=user)
 
-    print("User Social Auth")
-    print(userSocialAuth.extra_data)
-    print(userSocialAuth.extra_data['user_data'])
-    print(userSocialAuth.extra_data['user_data']['country_code'])
-    #print(userSocialAuth.extra_data.user_data)
+        print("User Social Auth")
+        print(userSocialAuth.extra_data)
+        print(userSocialAuth.extra_data['user_data'])
+        print(userSocialAuth.extra_data['user_data']['country_code'])
+        #print(userSocialAuth.extra_data.user_data)
 
-    if 'fullname' in userSocialAuth.extra_data['user_data']:
-        participantName = userSocialAuth.extra_data['user_data']['fullname']
+        if 'fullname' in userSocialAuth.extra_data['user_data']:
+            participantName = userSocialAuth.extra_data['user_data']['fullname']
 
-    if 'preferred_communication_channel' in userSocialAuth.extra_data['user_data']:
-        communicationChannel = userSocialAuth.extra_data['user_data']['preferred_communication_channel']
-        if communicationChannel == "sms":
-            if 'country_code' in userSocialAuth.extra_data['user_data']:
-                participantPhone["countryCode"] = userSocialAuth.extra_data['user_data']['country_code']
-            if 'phone_number' in userSocialAuth.extra_data['user_data']:
-                participantPhone["phoneNumber"] = userSocialAuth.extra_data['user_data']['phone_number']
+        if 'preferred_communication_channel' in userSocialAuth.extra_data['user_data']:
+            communicationChannel = userSocialAuth.extra_data['user_data']['preferred_communication_channel']
+            if communicationChannel == "sms":
+                if 'country_code' in userSocialAuth.extra_data['user_data']:
+                    participantPhone["countryCode"] = userSocialAuth.extra_data['user_data']['country_code']
+                if 'phone_number' in userSocialAuth.extra_data['user_data']:
+                    participantPhone["phoneNumber"] = userSocialAuth.extra_data['user_data']['phone_number']
+
+    except UserSocialAuth.DoesNotExist:
+        communicationChannel = "email"
+        participantName = user.first_name + " " + user.last_name
 
     print(communicationChannel)
     print(participantPhone)
 
-    #pprint(vars(userSocialAuth))
-    #TODO: handle user does not exists in UserSocialAuth model error
-    #pprint(vars(UserSocialAuth.objects.get(user=user)))
-    #print(len(UserSocialAuth.objects.all()))
-
     for course_obj in courses_json:
-        print(course_obj.get('course_id'))
-        print(course_id)
-        print('is course_obj_id and course_id ==')
-        print(str(course_obj.get('course_id')) == str(course_id))
-        print(str(course_obj.get('course_id')) == str(course_id))
         if str(course_obj.get('course_id')) == str(course_id):
             cert_data = course_obj.get('cert_data')
             cert_data['username'] = user.username

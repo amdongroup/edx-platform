@@ -95,7 +95,8 @@ class BasketsView(APIView):
 
     def _has_user_purchased_course(self, username, enrollingCourseId):
         
-        purchased_courses_url = "https://dev-oxygen-proxtera.apixoxygen.com/api/courses/" + username
+        #purchased_courses_url = "https://dev-oxygen-proxtera.apixoxygen.com/api/courses/" + username
+        purchased_courses_url = "https://oxygen-proxtera-api.apixoxygen.com/api/courses/" + username
         purchased_courses = requests.get(purchased_courses_url).json()
         user_enrolled = False
 

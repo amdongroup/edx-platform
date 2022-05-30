@@ -110,10 +110,10 @@ def _generate_certificate(user, course_key, status, enrollment_mode, course_grad
 #generate_custom_certificate
 def send_cert_to_external_service(user, cert_id, course_id):
     headers = {'Content-Type': 'application/json', 'apikey': '06642ecb-036d-4428-85a4-56b1428ec740'}
-    #url = 'https://stg-cert-api.apixoxygen.com/api/v2/certs'
-    url = 'https://cert-proxtera-api.apixoxygen.com/api/v2/certs'
-    candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course_smefe.json' #live_server
-    #candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json' #Dev_Server
+    url = 'https://stg-cert-api.apixoxygen.com/api/v2/certs'
+    #url = 'https://cert-proxtera-api.apixoxygen.com/api/v2/certs'
+    #candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course_smefe.json' #live_server
+    candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json' #Dev_Server
     courses_response = requests.get(candidate_courses_url)
     courses_json = courses_response.json()
 

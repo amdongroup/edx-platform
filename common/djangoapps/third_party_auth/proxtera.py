@@ -18,7 +18,7 @@ class ProxteraOAuth2(BaseOAuth2):
     """
     name = 'proxtera-oauth2'
 
-    PROVIDER_URL = "https://devauth.proxtera.app"
+    PROVIDER_URL = "https://auth.proxtera.com"
     AUTHORIZE_URL = "/oauth2/authorize"  # '/oauth2/authorize' usually is default value
     GET_TOKEN_URL = "/oauth2/token"  # '/oauth2/token' usually is default value
     ID_KEY = "user_id"  # unique marker which could be taken from the SSO response

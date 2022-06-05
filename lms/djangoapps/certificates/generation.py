@@ -17,7 +17,7 @@ from lms.djangoapps.certificates.utils import emit_certificate_event, get_prefer
 
 log = logging.getLogger(__name__)
 
-import lms.djangoapps.certificates.third_party_cert
+from lms.djangoapps.certificates import third_party_cert
 
 # from lms.djangoapps.courseware import courses
 # import requests
@@ -58,7 +58,7 @@ def generate_course_certificate(user, course_key, status, enrollment_mode, cours
             'generation_mode': generation_mode
         }
         emit_certificate_event(event_name='created', user=user, course_id=course_key, event_data=event_data)
-        third_party_cert.send_cert_to_external_service(user, cert.verify_uuid, course_key, course_grade)
+        third_party_cert.send_cert_to_external_service(user, cert.verify_uuid, course_key, float(course_grade))
 
     elif CertificateStatuses.unverified == cert.status:
         cert.mark_unverified(mode=enrollment_mode, source='certificate_generation')
@@ -110,116 +110,3 @@ def _generate_certificate(user, course_key, status, enrollment_mode, course_grad
     log.info(f'Generated certificate with status {cert.status}, mode {cert.mode} and grade {cert.grade} for {user.id} '
              f': {course_key}. {created_msg}')
     return cert
-
-# def get_grade_cutoffs(user, course_id):
-#     """
-#     Get grade cutoffs for user for a specific course
-#     Sample: grade_cutoffs = {'B': 0.8, 'C': 0.7, 'D': 0.6, 'A': 0.9}
-
-#     return None if GRADE_CUTOFFS key does not exists in the grading_policy
-
-#     """
-#     course = courses.get_course_with_access(user, 'load', course_id)
-#     print("get_grade_info > course")
-#     print(course.grading_policy.get('GRADE_CUTOFFS'))
-#     print(course.grading_policy)
-    
-#     return course.grading_policy.get('GRADE_CUTOFFS')
-
-# def is_distinction(course_grade, grade_cutoffs):
-#     """
-#     Check if user's current course grade (eg. 0.6) is grater than or equal to distinction grade
-
-#     """
-
-#     if course_grade and grade_cutoffs and len(grade_cutoffs) > 0:
-#         sorted_grade_cutoffs = sorted(list(grade_cutoffs.items()), key=lambda i: i[1], reverse=True)
-#         if len(sorted_grade_cutoffs[0]) > 1 and course_grade >= sorted_grade_cutoffs[0][1]:
-#             return True
-
-#     return False
-
-# def get_letter_grade(course_grade, grade_cutoffs):
-
-#     """
-#     return letter_grade based on user's current course grade
-
-#     """
-
-#     letter_grade = None
-#     if course_grade and not isinstance(course_grade, str) and grade_cutoffs and len(grade_cutoffs) > 0:
-#         sorted_grade_cutoffs = sorted(list(grade_cutoffs.items()), key=lambda i: i[1], reverse=True)
-#         for grade in sorted_grade_cutoffs:
-#             if len(grade) > 1 and course_grade >= grade[1]:
-#                 letter_grade = grade[0]
-#                 break
-
-#     return letter_grade
-
-# #generate_custom_certificate
-# def send_cert_to_external_service(user, cert_id, course_id, course_grade):
-#     headers = {'Content-Type': 'application/json', 'apikey': '06642ecb-036d-4428-85a4-56b1428ec740'}
-#     url = 'https://stg-cert-api.apixoxygen.com/api/v2/certs'
-#     #url = 'https://cert-proxtera-api.apixoxygen.com/api/v2/certs'
-#     #candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course_smefe.json' #live_server
-#     candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json' #Dev_Server
-#     courses_response = requests.get(candidate_courses_url)
-#     courses_json = courses_response.json()
-
-#     participantName = ""
-#     communicationChannel = ""
-#     participantPhone = {
-#         "countryCode": "",
-#         "phoneNumber" : ""
-#     }
-
-#     grade_cutoffs = get_grade_cutoffs(user, course_id)
-#     is_distinction = is_distinction(course_grade, grade_cutoffs)
-#     cert_category = get_letter_grade(course_grade, grade_cutoffs)
-
-#     try:
-#         userSocialAuth = UserSocialAuth.objects.get(user=user)
-
-#         print("User Social Auth")
-#         print(userSocialAuth.extra_data)
-#         print(userSocialAuth.extra_data['user_data'])
-#         print(userSocialAuth.extra_data['user_data']['country_code'])
-#         #print(userSocialAuth.extra_data.user_data)
-
-#         if 'fullname' in userSocialAuth.extra_data['user_data']:
-#             participantName = userSocialAuth.extra_data['user_data']['fullname']
-
-#         if 'preferred_communication_channel' in userSocialAuth.extra_data['user_data']:
-#             communicationChannel = userSocialAuth.extra_data['user_data']['preferred_communication_channel']
-#             if communicationChannel == "sms":
-#                 if 'country_code' in userSocialAuth.extra_data['user_data']:
-#                     participantPhone["countryCode"] = userSocialAuth.extra_data['user_data']['country_code']
-#                 if 'phone_number' in userSocialAuth.extra_data['user_data']:
-#                     participantPhone["phoneNumber"] = userSocialAuth.extra_data['user_data']['phone_number']
-
-#     except UserSocialAuth.DoesNotExist:
-#         communicationChannel = "email"
-#         participantName = user.first_name + " " + user.last_name
-
-#     print(communicationChannel)
-#     print(participantPhone)
-
-#     for course_obj in courses_json:
-#         if str(course_obj.get('course_id')) == str(course_id):
-#             cert_data = course_obj.get('cert_data')
-#             cert_data['username'] = user.username
-#             cert_data['cert_id'] = cert_id
-#             cert_data['participantName'] = participantName #user.first_name + " " + user.last_name
-#             cert_data['participantEmail'] = user.email
-#             cert_data['communicationChannel'] = communicationChannel
-#             cert_data['participantPhone'] = participantPhone
-#             cert_data['isDistinction'] = is_distinction
-#             cert_data['certCategory'] = cert_category
-#             cert_data['issuanceDate'] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
-#             print(cert_data)
-#             response = requests.post(url, data=json.dumps(cert_data), headers=headers)
-#             print('certificate generation response')
-#             print(vars(response))
-#             return response
-
-#     return ""

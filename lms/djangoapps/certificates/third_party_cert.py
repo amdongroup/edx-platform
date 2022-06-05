@@ -20,18 +20,46 @@ def get_grade_cutoffs(user, course_id):
     
     return course.grading_policy.get('GRADE_CUTOFFS')
 
-def is_distinction(course_grade, grade_cutoffs):
+def is_distinction(course_grade, grade_cutoffs, course_key):
     """
     Check if user's current course grade (eg. 0.6) is grater than or equal to distinction grade
 
     """
+    if not course_has_cert_template(course_key):
+      return "false"
+
+    """
+    Check if the course only have fail and pass grades
+    """
+    if len(grade_cutoffs) <= 1:
+      return "false"
 
     if course_grade and grade_cutoffs and len(grade_cutoffs) > 0:
         sorted_grade_cutoffs = sorted(list(grade_cutoffs.items()), key=lambda i: i[1], reverse=True)
         if len(sorted_grade_cutoffs[0]) > 1 and course_grade >= sorted_grade_cutoffs[0][1]:
-            return True
+            return "true"
 
-    return False
+    return "false"
+
+def course_has_cert_template(course_key):
+  cert_config = get_cert_config_for_course(course_key)
+
+  if cert_config:
+    if cert_config.get('certDisTemplateID'):
+      return True
+
+  return False
+
+def get_cert_config_for_course(course_key):
+  candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json'
+  courses_response = requests.get(candidate_courses_url)
+  courses_json = courses_response.json()
+
+  for course_obj in courses_json:
+    if str(course_obj.get('course_id')) == str(course_key):
+      return course_obj.get('cert_data')
+
+  return None
 
 def get_letter_grade(course_grade, grade_cutoffs):
 
@@ -56,9 +84,11 @@ def send_cert_to_external_service(user, cert_id, course_id, course_grade):
     url = 'https://stg-cert-api.apixoxygen.com/api/v2/certs'
     #url = 'https://cert-proxtera-api.apixoxygen.com/api/v2/certs'
     #candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course_smefe.json' #live_server
-    candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json' #Dev_Server
-    courses_response = requests.get(candidate_courses_url)
-    courses_json = courses_response.json()
+    
+    
+    # candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json' #Dev_Server
+    # courses_response = requests.get(candidate_courses_url)
+    # courses_json = courses_response.json()
 
     participantName = ""
     communicationChannel = ""
@@ -68,7 +98,7 @@ def send_cert_to_external_service(user, cert_id, course_id, course_grade):
     }
 
     grade_cutoffs = get_grade_cutoffs(user, course_id)
-    is_distinction = is_distinction(course_grade, grade_cutoffs)
+    distinction = is_distinction(course_grade, grade_cutoffs, course_id)
     cert_category = get_letter_grade(course_grade, grade_cutoffs)
 
     try:
@@ -98,23 +128,43 @@ def send_cert_to_external_service(user, cert_id, course_id, course_grade):
     print(communicationChannel)
     print(participantPhone)
 
-    for course_obj in courses_json:
-        if str(course_obj.get('course_id')) == str(course_id):
-            cert_data = course_obj.get('cert_data')
-            cert_data['username'] = user.username
-            cert_data['cert_id'] = cert_id
-            cert_data['participantName'] = participantName #user.first_name + " " + user.last_name
-            cert_data['participantEmail'] = user.email
-            cert_data['communicationChannel'] = communicationChannel
-            cert_data['participantPhone'] = participantPhone
-            cert_data['isDistinction'] = is_distinction
-            cert_data['certCategory'] = cert_category
-            cert_data['issuanceDate'] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
-            print("send_cert_to_external_service > cert_data")
-            print(cert_data)
-            response = requests.post(url, data=json.dumps(cert_data), headers=headers)
-            print('certificate generation response')
-            print(vars(response))
-            return response
+    cert_data = get_cert_config_for_course(course_id)
+
+    if cert_config:
+      #cert_data = cert_config
+      cert_data['username'] = user.username
+      cert_data['cert_id'] = cert_id
+      cert_data['participantName'] = participantName #user.first_name + " " + user.last_name
+      cert_data['participantEmail'] = user.email
+      cert_data['communicationChannel'] = communicationChannel
+      cert_data['participantPhone'] = participantPhone
+      cert_data['isDistinction'] = distinction
+      cert_data['certCategory'] = cert_category
+      cert_data['issuanceDate'] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
+      print("send_cert_to_external_service > cert_data")
+      print(cert_data)
+      response = requests.post(url, data=json.dumps(cert_data), headers=headers)
+      print('certificate generation response')
+      print(vars(response))
+      return response
+
+    # for course_obj in courses_json:
+    #     if str(course_obj.get('course_id')) == str(course_id):
+    #         cert_data = course_obj.get('cert_data')
+    #         cert_data['username'] = user.username
+    #         cert_data['cert_id'] = cert_id
+    #         cert_data['participantName'] = participantName #user.first_name + " " + user.last_name
+    #         cert_data['participantEmail'] = user.email
+    #         cert_data['communicationChannel'] = communicationChannel
+    #         cert_data['participantPhone'] = participantPhone
+    #         cert_data['isDistinction'] = distinction
+    #         cert_data['certCategory'] = cert_category
+    #         cert_data['issuanceDate'] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
+    #         print("send_cert_to_external_service > cert_data")
+    #         print(cert_data)
+    #         response = requests.post(url, data=json.dumps(cert_data), headers=headers)
+    #         print('certificate generation response')
+    #         print(vars(response))
+    #         return response
 
     return ""

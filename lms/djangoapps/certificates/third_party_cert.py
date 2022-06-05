@@ -81,7 +81,7 @@ def get_letter_grade(course_grade, grade_cutoffs):
 #generate_custom_certificate
 def send_cert_to_external_service(user, cert_id, course_id, course_grade):
     headers = {'Content-Type': 'application/json', 'apikey': '06642ecb-036d-4428-85a4-56b1428ec740'}
-    url = 'https://stg-cert-api.apixoxygen.com/api/v2/certs'
+    url = 'https://sff-cert-api.pagewerkz.com/api/v2/certs'
     #url = 'https://cert-proxtera-api.apixoxygen.com/api/v2/certs'
     #candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course_smefe.json' #live_server
     
@@ -130,7 +130,10 @@ def send_cert_to_external_service(user, cert_id, course_id, course_grade):
 
     cert_data = get_cert_config_for_course(course_id)
 
-    if cert_config:
+    print("send_cert_to_external_service > cert_data")
+    print(cert_data)
+
+    if cert_data:
       #cert_data = cert_config
       cert_data['username'] = user.username
       cert_data['cert_id'] = cert_id

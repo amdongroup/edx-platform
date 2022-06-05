@@ -15,7 +15,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.contrib.auth.views import PasswordResetCompleteView
 
-from .views import auto_auth, login, logout, password_reset, register
+from .views import auto_auth, login, logout, silence_logout, password_reset, register
 from .views.password_reset import PasswordResetConfirmWrapper
 
 urlpatterns = [
@@ -69,6 +69,9 @@ urlpatterns = [
     # trailing slash); LMS uses this view, but Studio links to the
     # auth_backends logout view.
     url(r'^logout$', logout.LogoutView.as_view(), name='logout'),
+
+    #Logout without redirecting to Signing out page
+    url(r'^silence_logout$', silence_logout.SilenceLogoutView.as_view(), name='silence_logout'),
 
     # Moved from user_api/legacy_urls.py
     url(

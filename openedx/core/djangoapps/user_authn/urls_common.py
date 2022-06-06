@@ -71,7 +71,7 @@ urlpatterns = [
     url(r'^logout$', logout.LogoutView.as_view(), name='logout'),
 
     #Logout without redirecting to Signing out page
-    url(r'^silence_logout$', silence_logout.SilenceLogoutView.as_view(), name='silence_logout'),
+    url(r'^logout_sfe$', silence_logout.SilenceLogoutView.as_view(), name='silence_logout'),
 
     # Moved from user_api/legacy_urls.py
     url(

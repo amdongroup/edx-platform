@@ -27,8 +27,14 @@ from openedx.core.djangoapps.content.course_overviews.signals import COURSE_PACI
 from openedx.core.djangoapps.signals.signals import (
     COURSE_GRADE_NOW_FAILED,
     COURSE_GRADE_NOW_PASSED,
-    LEARNER_NOW_VERIFIED
+    LEARNER_NOW_VERIFIED,
+    COURSE_GRADE_CHANGED
 )
+
+from pprint import pprint
+from lms.djangoapps.courseware.views.views import get_cert_data
+from lms.djangoapps.courseware.courses import get_course_with_access
+from lms.djangoapps.certificates import third_party_cert
 
 log = logging.getLogger(__name__)
 
@@ -61,6 +67,41 @@ def _listen_for_certificate_allowlist_append(sender, instance, **kwargs):  # pyl
                  f'made to generate an allowlist certificate.')
         return generate_allowlist_certificate_task(instance.user, instance.course_id)
 
+@receiver(COURSE_GRADE_CHANGED)
+def listen_for_changing_grade(**kwargs):
+    #print(course_grade)
+    user = kwargs.get('user')
+    course_grade = kwargs.get('course_grade')
+    course_key = kwargs.get('course_key')
+    course_grade_percent = course_grade.percent
+    course = get_course_with_access(user, 'load', course_key)
+
+    print("changing_grade > course")
+    print(course_grade.letter_grade)
+
+    if third_party_cert.is_distinction(course_grade_percent, course.grading_policy.get('GRADE_CUTOFFS'), course_key) == 'true':
+        cert_id = get_cert_id(user, course, course_key, course_grade)
+        if cert_id != '':
+            third_party_cert.send_cert_to_external_service(user, cert_id, course_key, course_grade_percent)
+
+def get_cert_id(user, course, course_key, course_grade):
+
+    enrollment = CourseEnrollment.get_enrollment(user, course_key)
+    enrollment_mode = getattr(enrollment, 'mode', None)
+
+    cert_data = get_cert_data(user, course, enrollment_mode, course_grade)
+
+    print("changing_grade > cert_data")
+    print(cert_data)
+
+    if cert_data:
+        cert_web_url = cert_data.cert_web_view_url
+
+        if cert_web_url and cert_web_url != '':
+            tmp_ary = cert_web_url.split('/certificates/')
+            if len(tmp_ary) > 1:
+                return tmp_ary[1]
+    return ''
 
 @receiver(COURSE_GRADE_NOW_PASSED, dispatch_uid="new_passing_learner")
 def listen_for_passing_grade(sender, user, course_id, **kwargs):  # pylint: disable=unused-argument

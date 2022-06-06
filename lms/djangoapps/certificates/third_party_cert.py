@@ -51,7 +51,8 @@ def course_has_cert_template(course_key):
   return False
 
 def get_cert_config_for_course(course_key):
-  candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json'
+  #candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json' #dev
+  candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course_smefe.json' #live
   courses_response = requests.get(candidate_courses_url)
   courses_json = courses_response.json()
 
@@ -81,7 +82,8 @@ def get_letter_grade(course_grade, grade_cutoffs):
 #generate_custom_certificate
 def send_cert_to_external_service(user, cert_id, course_id, course_grade):
     headers = {'Content-Type': 'application/json', 'apikey': '06642ecb-036d-4428-85a4-56b1428ec740'}
-    url = 'https://sff-cert-api.pagewerkz.com/api/v2/certs'
+    url = 'https://cert-proxtera-api.apixoxygen.com/api/v2/certs' #live
+    #url = 'https://sff-cert-api.pagewerkz.com/api/v2/certs' #dev
     #url = 'https://cert-proxtera-api.apixoxygen.com/api/v2/certs'
     #candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course_smefe.json' #live_server
     

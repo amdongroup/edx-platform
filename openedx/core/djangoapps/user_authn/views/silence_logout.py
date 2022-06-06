@@ -10,4 +10,4 @@ class SilenceLogoutView(APIView):
         print(request)
 
         logout(request)
-        return HttpResponseRedirect("https://www.devsfe.proxtera.app/")
+        return HttpResponseRedirect("https://www.smefe.org/")

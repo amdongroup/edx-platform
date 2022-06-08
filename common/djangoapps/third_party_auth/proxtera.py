@@ -22,7 +22,7 @@ class ProxteraOAuth2(BaseOAuth2):
     AUTHORIZE_URL = "/oauth2/authorize"  # '/oauth2/authorize' usually is default value
     GET_TOKEN_URL = "/oauth2/token"  # '/oauth2/token' usually is default value
     ID_KEY = "user_id"  # unique marker which could be taken from the SSO response
-    USER_DATA_URL = "https://devauthapi.proxtera.app/oauth2/userinfo"  # '/api/current-user/' some url similar to the example
+    USER_DATA_URL = "https://authapi.proxtera.com/oauth2/userinfo"  # '/api/current-user/' some url similar to the example
     EXTRA_DATA = [
         ('user_data', 'user_data')
     ]

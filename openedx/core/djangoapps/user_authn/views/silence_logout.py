@@ -3,6 +3,9 @@ from django.contrib.auth import logout
 from common.djangoapps.util.json_request import JsonResponse
 from django.http import HttpResponseRedirect
 
+from openedx.core.djangoapps.user_authn.cookies import delete_logged_in_cookies
+from openedx.core.djangoapps.safe_sessions.middleware import mark_user_change_as_expected
+
 class SilenceLogoutView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -10,4 +13,9 @@ class SilenceLogoutView(APIView):
         print(request)
 
         logout(request)
-        return HttpResponseRedirect("https://www.devsfe.proxtera.app/")
+        response = HttpResponseRedirect("https://www.devsfe.proxtera.app/")
+
+        delete_logged_in_cookies(response)
+        mark_user_change_as_expected(response, None)
+
+        return response

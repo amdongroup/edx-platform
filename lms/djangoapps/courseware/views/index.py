@@ -63,7 +63,7 @@ from ..masquerade import check_content_start_date_for_masquerade_user, setup_mas
 from ..model_data import FieldDataCache
 from ..module_render import get_module_for_descriptor, toc_for_course
 from ..permissions import MASQUERADE_AS_STUDENT
-from ..toggles import ENABLE_OPTIMIZELY_IN_COURSEWARE, courseware_mfe_is_active, courseware_legacy_is_visible, courseware_mfe_is_advertised ## MOD
+from ..toggles import ENABLE_OPTIMIZELY_IN_COURSEWARE, courseware_mfe_is_active
 from .views import CourseTabView
 
 log = logging.getLogger("edx.courseware.views.index")

@@ -81,6 +81,8 @@ def get_letter_grade(course_grade, grade_cutoffs):
 
 #generate_custom_certificate
 def send_cert_to_external_service(user, cert_id, course_id, course_grade):
+    print("GGWP: send_cert_to_external_service")
+    
     headers = {'Content-Type': 'application/json', 'apikey': '06642ecb-036d-4428-85a4-56b1428ec740'}
     # url = 'https://cert-proxtera-api.apixoxygen.com/api/v2/certs' #live
     url = 'https://sff-cert-api.pagewerkz.com/api/v2/certs' #dev

@@ -47,6 +47,13 @@ def generate_course_certificate(user, course_key, status, enrollment_mode, cours
         }
         emit_certificate_event(event_name='created', user=user, course_id=course_key, event_data=event_data)
         from lms.djangoapps.certificates import third_party_cert
+        print("GGWP: GEN CERT")
+        print(user.id)
+        print(cert.verify_uuid)
+        print(course_key)
+        print(cert.mode)
+        print(generation_mode)
+        print("GGWP: EOF GEN CERT")
         third_party_cert.send_cert_to_external_service(user, cert.verify_uuid, course_key, float(course_grade))
 
     elif CertificateStatuses.unverified == cert.status:

@@ -63,7 +63,7 @@ from ..masquerade import check_content_start_date_for_masquerade_user, setup_mas
 from ..model_data import FieldDataCache
 from ..module_render import get_module_for_descriptor, toc_for_course
 from ..permissions import MASQUERADE_AS_STUDENT
-from ..toggles import ENABLE_OPTIMIZELY_IN_COURSEWARE, courseware_mfe_is_active
+from ..toggles import ENABLE_OPTIMIZELY_IN_COURSEWARE, courseware_mfe_is_active, courseware_legacy_is_visible, courseware_mfe_is_advertised ## MOD
 from .views import CourseTabView
 
 log = logging.getLogger("edx.courseware.views.index")
@@ -430,6 +430,8 @@ class CoursewareIndex(View):
             'disable_accordion': not DISABLE_COURSE_OUTLINE_PAGE_FLAG.is_enabled(self.course.id),
             'show_search': show_search,
             'render_course_wide_assets': True,
+            'overall_percentage': self.overall_percentage, ## MOD
+            'available_cert_id': self.available_cert_id ## MOD
         }
         courseware_context.update(
             get_experiment_user_metadata_context(

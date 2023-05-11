@@ -2,12 +2,19 @@
 
 
 import logging
+
+## MOD
+import requests
+import json
+
+from django.http.response import HttpResponse
+
 from urllib.parse import urljoin
 
 from django.urls import reverse
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from opaque_keys import InvalidKeyError
-from opaque_keys.edx.keys import CourseKey
+from opaque_keys.edx.keys import CourseKey, UsageKey # MOD
 from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -25,6 +32,10 @@ from openedx.core.djangoapps.enrollments.api import add_enrollment
 from openedx.core.djangoapps.enrollments.views import EnrollmentCrossDomainSessionAuth
 from openedx.core.djangoapps.user_api.preferences.api import update_email_opt_in
 from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiveUser
+
+## MOD
+from lms.djangoapps.verify_student.models import ManualVerification
+from openedx.features.course_experience.url_helpers import make_learning_mfe_courseware_url, get_learning_mfe_home_url
 
 from ...constants import Messages
 from ...http import DetailResponse
@@ -85,12 +96,44 @@ class BasketsView(APIView):
                     'Failed to handle marketing opt-in flag: user="%s", course="%s"', user.username, course_key
                 )
 
+    ## MOD
+    def _has_user_purchased_course(self, username, enrollingCourseId):
+        
+        purchased_courses_url = "https://oxygen-proxtera-api.apixoxygen.com/api/courses/" + username
+        #purchased_courses_url = "https://oxygen-proxtera-api.apixoxygen.com/api/courses/" + username
+        purchased_courses = requests.get(purchased_courses_url).json()
+        user_enrolled = False
+
+        for purchased_course in purchased_courses:
+            if str(enrollingCourseId) == str(purchased_course):
+                user_enrolled = True
+
+        return user_enrolled
+
     def post(self, request, *args, **kwargs):  # lint-amnesty, pylint: disable=unused-argument
         """
         Attempt to enroll the user.
         """
         user = request.user
+        ## MOD
+        subSectionId = request.data.get("sub_section_id")
+        unitId = request.data.get("unit_id")
+        enrollment_response = {}
+        ## EOF MOD
+
         valid, course_key, error = self._is_data_valid(request)
+        ## MOD
+        learning_mfe_courseware_url = ""
+        if subSectionId:
+            if unitId:
+                learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId), UsageKey.from_string(unitId))
+            else:
+                learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key, UsageKey.from_string(subSectionId))
+        else:
+            learning_mfe_courseware_url = make_learning_mfe_courseware_url(course_key)
+        ## EOF MOD
+
+
         if not valid:
             return DetailResponse(error, status=HTTP_406_NOT_ACCEPTABLE)
 
@@ -103,8 +146,16 @@ class BasketsView(APIView):
         course_id = str(course_key)
         enrollment = CourseEnrollment.get_enrollment(user, course_key)
         if enrollment and enrollment.is_active:
-            msg = Messages.ENROLLMENT_EXISTS.format(course_id=course_id, username=user.username)
-            return DetailResponse(msg, status=HTTP_409_CONFLICT)
+            ## MOD
+            # msg = Messages.ENROLLMENT_EXISTS.format(course_id=course_id, username=user.username)
+            # return DetailResponse(msg, status=HTTP_409_CONFLICT)
+            enrollment_response['message'] = 'success'
+            enrollment_response['redirect_url'] = learning_mfe_courseware_url
+            return HttpResponse(
+                json.dumps(enrollment_response),
+                content_type="application/json"
+            )
+            ## EOF MOD
 
         # Check to see if enrollment for this course is closed.
         course = courses.get_course(course_key)
@@ -118,6 +169,7 @@ class BasketsView(APIView):
         # to track selection.
         honor_mode = CourseMode.mode_for_course(course_key, CourseMode.HONOR)
         audit_mode = CourseMode.mode_for_course(course_key, CourseMode.AUDIT)
+        verified_mode = CourseMode.mode_for_course(course_key, CourseMode.VERIFIED) ## MOD
 
         # Check to see if the User has an entitlement and enroll them if they have one for this course
         if CourseEntitlement.check_for_existing_entitlement_and_enroll(user=user, course_run_key=course_key):
@@ -132,6 +184,44 @@ class BasketsView(APIView):
         default_enrollment_mode = audit_mode or honor_mode
         course_name = None
         course_announcement = None
+
+        ## MOD
+        if verified_mode == None:
+            self._enroll(course_key, user, "audit")
+            enrollment_response['mode'] = 'audit'
+            enrollment_response['message'] = 'success'
+            enrollment_response['redirect_url'] = learning_mfe_courseware_url
+            return HttpResponse(
+                json.dumps(enrollment_response),
+                content_type="application/json"
+            )
+
+        elif self._has_user_purchased_course(user.username, course_key):
+            self._enroll(course_key, user, "verified")
+            
+            isUserVerified = ManualVerification.objects.get_or_create(
+                user = user,
+                status = 'approved',
+                defaults = {'name': user.profile.name}
+            )
+
+            print('isUserVerified')
+            print(isUserVerified)
+
+            enrollment_response['mode'] = 'verified'
+            enrollment_response['message'] = 'success'
+            enrollment_response['redirect_url'] = learning_mfe_courseware_url
+            return HttpResponse(
+                json.dumps(enrollment_response),
+                content_type="application/json"
+            )
+
+        enrollment_response['message'] = 'error'
+        return HttpResponse(
+            json.dumps(enrollment_response),
+                content_type="application/json"
+        )
+        
         if course is not None:
             course_name = course.display_name
             course_announcement = course.announcement

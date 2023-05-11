@@ -15,7 +15,7 @@ from django.conf import settings
 from django.contrib.auth.views import PasswordResetCompleteView
 from django.urls import path, re_path
 
-from .views import auto_auth, login, logout, password_reset, register
+from .views import auto_auth, login, logout, silence_logout, password_reset, register
 from .views.password_reset import PasswordResetConfirmWrapper
 
 urlpatterns = [
@@ -64,6 +64,9 @@ urlpatterns = [
     # auth_backends logout view.
     path('logout', logout.LogoutView.as_view(), name='logout'),
 
+    #Logout without redirecting to Signing out page
+    re_path(r'^logout_sfe$', silence_logout.SilenceLogoutView.as_view(), name='silence_logout'),
+     
     # Moved from user_api/legacy_urls.py
     path('api/user/v1/account/password_reset/', password_reset.PasswordResetView.as_view(),
          name="user_api_password_reset"

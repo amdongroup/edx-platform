@@ -1,6 +1,6 @@
-(function(define) {
+(function (define) {
     'use strict';
-    define(['jquery', 'jquery.cookie'], function($) {
+    define(['jquery', 'jquery.cookie'], function ($) {
         var EnrollmentInterface = {
 
             urls: {
@@ -16,8 +16,13 @@
              * @param  {string} courseKey  Slash-separated course key.
              * @param  {string} redirectUrl The URL to redirect to once enrollment completes.
              */
-            enroll: function(courseKey, redirectUrl) {
-                var data_obj = {course_id: courseKey},
+            enroll: function (courseKey, redirectUrl) {
+                // MOD
+                var data_obj = {
+                    course_id: courseKey,
+                    sub_section_id: subSectionId,
+                    unit_id: unitId
+                },
                     data = JSON.stringify(data_obj);
 
                 $.ajax({
@@ -27,7 +32,7 @@
                     data: data,
                     headers: this.headers,
                     context: this
-                }).fail(function(jqXHR) {
+                }).fail(function (jqXHR) {
                     var responseData = JSON.parse(jqXHR.responseText);
                     if (jqXHR.status === 403 && responseData.user_message_url) {
                         // Check if we've been blocked from the course
@@ -37,26 +42,45 @@
                         this.redirect(responseData.user_message_url);
                     } else {
                         // Otherwise, redirect the user to the next page.
-                        if (redirectUrl) {
-                            this.redirect(redirectUrl);
-                        }
+                        // MOD
+                        // if (redirectUrl) {
+                        //     this.redirect(redirectUrl);
+                        // }
+                        this.redirectToDashboard()
+                        // EOF MOD
                     }
-                }).done(function(response) {
+                }).done(function (response) {
                     // If we successfully enrolled, redirect the user
                     // to the next page (usually the student dashboard or payment flow)
-                    if (response.redirect_destination) {
-                        this.redirect(response.redirect_destination);
-                    } else if (redirectUrl) {
-                        this.redirect(redirectUrl);
+                    // MOD
+                    console.log(response)
+                    if (response.message == "success") {
+                        //this.redirectToSectionDetail(courseKey, chapterId, sectionId)
+                        this.redirect(response.redirect_url)
+                    } else {
+                        this.redirectToDashboard()
                     }
+                    // if (response.redirect_destination) {
+                    //     this.redirect(response.redirect_destination);
+                    // } else if (redirectUrl) {
+                    //     this.redirect(redirectUrl);
+                    // }
+                    // EOF MOD
                 });
             },
+
+            // MOD
+            redirectToDashboard: function () {
+                var url = `${window.location.origin}/dashboard`
+                window.location.href = url
+            },
+            // EOF MOD
 
             /**
              * Redirect to a URL.  Mainly useful for mocking out in tests.
              * @param  {string} url The URL to redirect to.
              */
-            redirect: function(url) {
+            redirect: function (url) {
                 window.location.href = url;
             }
         };

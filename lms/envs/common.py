@@ -3289,7 +3289,7 @@ REST_FRAMEWORK = {
 #    It's POST endpoint is rate-limited up to 30 requests per IP Address in a week by default.
 #    It was introduced because an attacker can guess or brute force a series of names to enumerate valid users.
 # .. setting_tickets: https://github.com/openedx/edx-platform/pull/24664
-REGISTRATION_VALIDATION_RATELIMIT = '30/7d'
+REGISTRATION_VALIDATION_RATELIMIT = '5/7d' ## MOD , default 30/7d
 
 # .. setting_name: REGISTRATION_RATELIMIT
 # .. setting_default: 60/7d
@@ -3297,7 +3297,7 @@ REGISTRATION_VALIDATION_RATELIMIT = '30/7d'
 #    It's POST end-point is rate-limited up to 60 requests per IP Address in a week by default.
 #    Purpose of this setting is to restrict an attacker from registering numerous fake accounts.
 # .. setting_tickets: https://github.com/openedx/edx-platform/pull/27060
-REGISTRATION_RATELIMIT = '60/7d'
+REGISTRATION_RATELIMIT = '5/7d' ## MOD , default 60/7d
 
 SWAGGER_SETTINGS = {
     'DEFAULT_INFO': 'openedx.core.apidocs.api_info',

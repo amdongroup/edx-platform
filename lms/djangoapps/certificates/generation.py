@@ -15,7 +15,7 @@ from lms.djangoapps.certificates.models import GeneratedCertificate
 from lms.djangoapps.certificates.utils import emit_certificate_event, get_preferred_certificate_name
 
 log = logging.getLogger(__name__)
-
+from lms.djangoapps.certificates import third_party_cert
 
 def generate_course_certificate(user, course_key, status, enrollment_mode, course_grade, generation_mode):
     """
@@ -47,6 +47,7 @@ def generate_course_certificate(user, course_key, status, enrollment_mode, cours
             'generation_mode': generation_mode
         }
         emit_certificate_event(event_name='created', user=user, course_id=course_key, event_data=event_data)
+        third_party_cert.send_cert_to_external_service(user, cert.verify_uuid, course_key, float(course_grade))
 
     elif CertificateStatuses.unverified == cert.status:
         cert.mark_unverified(mode=enrollment_mode, source='certificate_generation')

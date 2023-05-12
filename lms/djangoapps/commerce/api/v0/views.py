@@ -98,8 +98,8 @@ class BasketsView(APIView):
 
     ## MOD
     def _has_user_purchased_course(self, username, enrollingCourseId):
-        
-        purchased_courses_url = "https://oxygen-proxtera-api.apixoxygen.com/api/courses/" + username
+        print("Checking if user has purchased course", username, enrollingCourseId)
+        purchased_courses_url = "https://sdl-demo-api.pagewerkz.com/api/courses/" + username
         #purchased_courses_url = "https://oxygen-proxtera-api.apixoxygen.com/api/courses/" + username
         purchased_courses = requests.get(purchased_courses_url).json()
         user_enrolled = False

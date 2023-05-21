@@ -13,7 +13,7 @@ class SilenceLogoutView(APIView):
         print(request)
 
         logout(request)
-        response = HttpResponseRedirect("https://www.smefe.org/")
+        response = HttpResponseRedirect("https://mongolia-nodma-dev.pagewerkz.com/")
 
         delete_logged_in_cookies(response)
         mark_user_change_as_expected(response, None)

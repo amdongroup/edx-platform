@@ -33,6 +33,7 @@ def generate_course_certificate(user, course_key, status, enrollment_mode, cours
         generation_mode: used when emitting an event. Options are "self" (implying the user generated the cert
             themself) and "batch" for everything else.
     """
+    print("GGWP5")
     cert = _generate_certificate(user=user, course_key=course_key, status=status, enrollment_mode=enrollment_mode,
                                  course_grade=course_grade)
 

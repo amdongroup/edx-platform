@@ -39,7 +39,7 @@ external_cert_web_view_url = ""
     
 if 'cert_web_view_url' in cert_status:
     external_cert_id = cert_status['cert_web_view_url'].replace('/certificates/', '')
-    external_cert_web_view_url = 'https://smefe-certificate.apixoxygen.com/certificate/' + external_cert_id
+    external_cert_web_view_url = 'https://sdl-cert-dev.pagewerkz.com/certificate/' + external_cert_id
 %>
 <%
   requesting_post_url = reverse('generate_user_cert', args=[str(course_overview.id)])

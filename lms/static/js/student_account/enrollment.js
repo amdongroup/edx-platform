@@ -16,7 +16,10 @@
              * @param  {string} courseKey  Slash-separated course key.
              * @param  {string} redirectUrl The URL to redirect to once enrollment completes.
              */
-            enroll: function (courseKey, redirectUrl) {
+            enroll: function (courseKey, redirectUrl, subSectionId, unitId) {
+                alert('enroll')
+                console.log('GGWP 5: subSectionId', subSectionId)
+                console.log('GGWP 5: unitId', unitId)
                 // MOD
                 var data_obj = {
                     course_id: courseKey,
@@ -24,7 +27,7 @@
                     unit_id: unitId
                 },
                     data = JSON.stringify(data_obj);
-
+                console.log('GGWP 5: API CALL')
                 $.ajax({
                     url: this.urls.baskets,
                     type: 'POST',
@@ -33,6 +36,7 @@
                     headers: this.headers,
                     context: this
                 }).fail(function (jqXHR) {
+                    console.log('GGWP 5: API CALL FAIL')
                     var responseData = JSON.parse(jqXHR.responseText);
                     if (jqXHR.status === 403 && responseData.user_message_url) {
                         // Check if we've been blocked from the course
@@ -50,10 +54,11 @@
                         // EOF MOD
                     }
                 }).done(function (response) {
+                    console.log('GGWP 5: API CALL DONE')
                     // If we successfully enrolled, redirect the user
                     // to the next page (usually the student dashboard or payment flow)
                     // MOD
-                    console.log(response)
+                    console.log('GGWP 5 : RRR ', response.message)
                     if (response.message == "success") {
                         //this.redirectToSectionDetail(courseKey, chapterId, sectionId)
                         this.redirect(response.redirect_url)
@@ -71,6 +76,7 @@
 
             // MOD
             redirectToDashboard: function () {
+                console.log('GGWP 5 : redirectToDashboard')
                 var url = `${window.location.origin}/dashboard`
                 window.location.href = url
             },

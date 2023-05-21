@@ -98,7 +98,7 @@ class BasketsView(APIView):
 
     ## MOD
     def _has_user_purchased_course(self, username, enrollingCourseId):
-        print("Checking if user has purchased course", username, enrollingCourseId)
+        print("GGWP4 : _has_user_purchased_course", username, enrollingCourseId)
         purchased_courses_url = "https://sdl-demo-api.pagewerkz.com/api/courses/" + username
         #purchased_courses_url = "https://oxygen-proxtera-api.apixoxygen.com/api/courses/" + username
         purchased_courses = requests.get(purchased_courses_url).json()
@@ -107,13 +107,14 @@ class BasketsView(APIView):
         for purchased_course in purchased_courses:
             if str(enrollingCourseId) == str(purchased_course):
                 user_enrolled = True
-
+        print("GGWP4 : user_enrolled",user_enrolled)
         return user_enrolled
 
     def post(self, request, *args, **kwargs):  # lint-amnesty, pylint: disable=unused-argument
         """
         Attempt to enroll the user.
         """
+        print("GGWP4")
         user = request.user
         ## MOD
         subSectionId = request.data.get("sub_section_id")
@@ -184,7 +185,10 @@ class BasketsView(APIView):
         default_enrollment_mode = audit_mode or honor_mode
         course_name = None
         course_announcement = None
-
+        print("GGWP4 : course_key",course_key)
+        print("GGWP4 : verified_mode",verified_mode)
+        print("GGWP4 : honor_mode",honor_mode)
+        print("GGWP4 : audit_mode",audit_mode)
         ## MOD
         if verified_mode == None:
             self._enroll(course_key, user, "audit")

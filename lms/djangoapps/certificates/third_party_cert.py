@@ -4,6 +4,7 @@ import time, datetime
 
 from lms.djangoapps.courseware import courses
 from social_django.models import UserSocialAuth
+from common.djangoapps.student.models import UserProfile
 
 def get_grade_cutoffs(user, course_id):
     """
@@ -127,7 +128,10 @@ def send_cert_to_external_service(user, cert_id, course_id, course_grade):
 
     except UserSocialAuth.DoesNotExist:
         communicationChannel = "email"
-        participantName = user.first_name + " " + user.last_name
+        print("NOOOO User Social Auth")
+        profile = UserProfile.objects.get(user=user)
+        participantName = profile.name if profile.name else user.first_name + " " + user.last_name
+        print("participantName ->>>",participantName)
 
     print(communicationChannel)
     print(participantPhone)

@@ -408,7 +408,7 @@
 </li>
 </script>
 <script aria-hidden="true" type="text/template" id="search-alert-template">
-<div class="search-alert <%- css_class %>" id="search-alert-<%- cid %>">
+<div class="search-alert <%- css_class %>" style="display: flex;justify-content: space-between;margin: 10px;" id="search-alert-<%- cid %>">
     <div class="search-alert-content">
         <p class="message"><%= HtmlUtils.ensureHtml(messageHtml) %></p>
     </div>
@@ -713,7 +713,7 @@
     <div class="field-label">
         <label for="<%- edx.StringUtils.interpolate(form_id) %>-post-type-question" class="post-type-label">
             <input aria-describedby="field_help_post_type" type="radio" name="<%- edx.StringUtils.interpolate(form_id) %>-post-type" class="field-input input-radio" id="<%- edx.StringUtils.interpolate(form_id) %>-post-type-question" value="question">
-            <span class="field-input-label">
+            <span class="field-input-label" style="color: black;">
                 <span class="icon fa fa-question" aria-hidden="true"></span>
                 <% // Translators: This is a forum post type %>
                 <%- gettext("Question") %>
@@ -721,7 +721,7 @@
         </label>
         <label for="<%- edx.StringUtils.interpolate(form_id) %>-post-type-discussion" class="post-type-label">
             <input aria-describedby="field_help_post_type" type="radio" name="<%- edx.StringUtils.interpolate(form_id) %>-post-type" class="field-input input-radio" id="<%- edx.StringUtils.interpolate(form_id) %>-post-type-discussion" value="discussion" checked>
-            <span class="field-input-label">
+            <span class="field-input-label" style="color: black;">
                 <span class="icon fa fa-comments" aria-hidden="true"></span>
                 <% // Translators: This is a forum post type %>
                 <%- gettext("Discussion") %>

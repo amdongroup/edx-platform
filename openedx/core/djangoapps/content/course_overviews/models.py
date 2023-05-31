@@ -102,6 +102,7 @@ class CourseOverview(TimeStampedModel):
     cert_name_short = models.TextField()
     cert_name_long = models.TextField()
     certificate_available_date = models.DateTimeField(default=None, null=True)
+    show_cert_progress = models.BooleanField(default=False)
 
     # Grading
     lowest_passing_grade = models.DecimalField(max_digits=5, decimal_places=2, null=True)
@@ -226,6 +227,7 @@ class CourseOverview(TimeStampedModel):
         course_overview.cert_html_view_enabled = course.cert_html_view_enabled
         course_overview.has_any_active_web_certificate = (get_active_web_certificate(course) is not None)
         course_overview.cert_name_short = course.cert_name_short
+        course_overview.show_cert_progress = course.show_cert_progress
         course_overview.cert_name_long = course.cert_name_long
         course_overview.lowest_passing_grade = lowest_passing_grade
         course_overview.end_of_course_survey_url = course.end_of_course_survey_url

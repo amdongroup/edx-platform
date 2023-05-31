@@ -358,12 +358,6 @@ class CourseFields:  # lint-amnesty, pylint: disable=missing-class-docstring
         default=False,
         scope=Scope.settings
     )
-    show_cert_progress = Boolean(
-        display_name=_("Show Cert Progress"),
-        help=_("Enter true or false. When true, students can see the Cert Progress in the course."),
-        default=False,
-        scope=Scope.settings
-    )
     display_name = String(
         help=_("Enter the name of the course as it should appear in the course list."),
         default="Empty",

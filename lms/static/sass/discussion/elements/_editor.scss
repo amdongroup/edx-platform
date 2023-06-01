@@ -159,6 +159,10 @@
     font-size: $forum-base-font-size;
   }
 
+  .field-input-label-custom {
+    color: black;
+  }
+
   .input-text {
     width: calc(100% - 175px); // minus choose file button width
     height: 40px; // align with choose file button

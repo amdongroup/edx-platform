@@ -159,10 +159,6 @@
     font-size: $forum-base-font-size;
   }
 
-  .field-input-label-custom {
-    color: black;
-  }
-
   .input-text {
     width: calc(100% - 175px); // minus choose file button width
     height: 40px; // align with choose file button
@@ -197,4 +193,8 @@
   // this is being hidden now because the inline styles to position the icons are not being written
   position: relative;
   height: 25px;
+}
+
+.field-input-label-custom {
+    color: black !important;
 }

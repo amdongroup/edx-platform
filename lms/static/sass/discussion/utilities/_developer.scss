@@ -27,12 +27,6 @@
     background-color: $black;
   }
 
-  .search-alert-custom {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px;
-  }
-
   .search-alert-content,
   .search-alert-controls {
     display: inline-block;
@@ -86,4 +80,10 @@
       }
     }
   }
+}
+
+.search-alert-custom {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin: 10px !important;
 }

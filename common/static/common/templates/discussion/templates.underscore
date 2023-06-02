@@ -473,7 +473,7 @@
     <div class="post-options">
         <label for="follow" class="field-label label-inline">
             <input id="follow" type="checkbox" name="follow" class="field-input input-checkbox" checked>
-            <span class="field-input-label">
+            <span class="field-input-label field-input-label-custom">
                 <span class="icon fa fa-star" aria-hidden="true"></span><%- gettext("follow this post") %>
             </span>
         </label>

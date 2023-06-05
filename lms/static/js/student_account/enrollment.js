@@ -17,7 +17,6 @@
              * @param  {string} redirectUrl The URL to redirect to once enrollment completes.
              */
             enroll: function (courseKey, redirectUrl, subSectionId, unitId) {
-                alert('enroll')
                 console.log('GGWP 5: subSectionId', subSectionId)
                 console.log('GGWP 5: unitId', unitId)
                 // MOD

@@ -123,7 +123,6 @@
              * - Be redirected to the dashboard / track selection page / shopping cart.
              */
             enrollment: function () {
-                alert('enrollment ',this.subSectionId, this.unitId);
                 var redirectUrl = this.nextUrl;
 
                 if (this.enrollmentAction === 'enroll' && this.courseId) {

@@ -1,5 +1,5 @@
 """
-ProxteraOAuth2: Proxtera OAuth2
+NodmaOAuth2: Nodma OAuth2
 REF 
 - https://github.com/raccoongang/edx-oauth-client/blob/master/edx_oauth_client/backends/generic_oauth_client.py
 - https://github.com/python-social-auth/social-core/tree/f27461df08bed02cdb8f95b828316a63751bb3a4/social_core/backends
@@ -12,11 +12,11 @@ from social_core.exceptions import AuthFailed
 from social_core.utils import handle_http_errors
 from common.djangoapps import third_party_auth
 
-class ProxteraOAuth2(BaseOAuth2):
+class NodmaOAuth2(BaseOAuth2):
     """
-    Backend for Proxtera OAuth Server Authorization.
+    Backend for Nodma OAuth Server Authorization.
     """
-    name = 'proxtera-oauth2'
+    name = 'nodma-oauth2'
 
     PROVIDER_URL = "https://dev-pagewerkz.pagewerkz.com"
     AUTHORIZE_URL = "/api/oauth2/authenticate"  # '/oauth2/authorize' usually is default value
@@ -40,7 +40,7 @@ class ProxteraOAuth2(BaseOAuth2):
         """
         Return user details from SSO account.
         """
-        data = response.get('data')
+        data = response.get('userInfo')
         return {
             'username': data.get('_id'),
             'name': data.get('fullname'),
@@ -103,12 +103,12 @@ class ProxteraOAuth2(BaseOAuth2):
         Return a unique ID for the current user, by default from server response.
         Without this method, 1st time reg and login will be ok 
         but 2nd or more will have error
-        `Login failed - user with username xxx has no social auth backend name proxtera-oauth2
+        `Login failed - user with username xxx has no social auth backend name nodma-oauth2
         """
         if 'data' in response:
             id_key = response['data'].get(self.ID_KEY)
         else:
             id_key = response.get('email')
         if not id_key:
-            log.error("ID_KEY is not found in the User data response. SSO won't work correctly")
+            logging.error("ID_KEY is not found in the User data response. SSO won't work correctly")
         return id_key

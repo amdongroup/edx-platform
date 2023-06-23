@@ -21,7 +21,7 @@ class NodmaOAuth2(BaseOAuth2):
     PROVIDER_URL = "https://dev-pagewerkz.pagewerkz.com"
     AUTHORIZE_URL = "/api/oauth2/authenticate"  # '/oauth2/authorize' usually is default value
     GET_TOKEN_URL = "/api/oauth2/access_token"  # '/oauth2/token' usually is default value
-    ID_KEY = "user_id"  # unique marker which could be taken from the SSO response
+    ID_KEY = "username"  # unique marker which could be taken from the SSO response
     USER_DATA_URL = "https://dev-pagewerkz.pagewerkz.com/api/oauth2/userinfo"  # '/api/current-user/' some url similar to the example
     EXTRA_DATA = [
         ('user_data', 'user_data')
@@ -42,7 +42,7 @@ class NodmaOAuth2(BaseOAuth2):
         """
         data = response.get('userInfo')
         return {
-            'username': data.get('_id'),
+            'username': data.get('username'),
             'name': data.get('fullname'),
             'fullname': data.get('fullname'),  
             'email': data.get('email') or '',

@@ -21,7 +21,7 @@ class NodmaOAuth2(BaseOAuth2):
     PROVIDER_URL = "https://dev-pagewerkz.pagewerkz.com"
     AUTHORIZE_URL = "/api/oauth2/authenticate"  # '/oauth2/authorize' usually is default value
     GET_TOKEN_URL = "/api/oauth2/access_token"  # '/oauth2/token' usually is default value
-    ID_KEY = "username"  # unique marker which could be taken from the SSO response
+    ID_KEY = "_id"  # unique marker which could be taken from the SSO response
     USER_DATA_URL = "https://dev-pagewerkz.pagewerkz.com/api/oauth2/userinfo"  # '/api/current-user/' some url similar to the example
     EXTRA_DATA = [
         ('user_data', 'user_data')
@@ -36,13 +36,13 @@ class NodmaOAuth2(BaseOAuth2):
     skip_email_verification = True
 
     def get_user_details(self, response):
-        logging.warning('get_user_details')
+        logging.warning('AAA2 get_user_details')
         """
         Return user details from SSO account.
         """
-        data = response.get('userInfo')
+        data = response.get('data')
         return {
-            'username': data.get('username'),
+            'username': data.get('_id'),
             'name': data.get('fullname'),
             'fullname': data.get('fullname'),  
             'email': data.get('email') or '',
@@ -53,7 +53,7 @@ class NodmaOAuth2(BaseOAuth2):
 
     @handle_http_errors
     def do_auth(self, access_token, *args, **kwargs):
-        logging.warning('do_auth')
+        logging.warning('AAA2 do_auth')
         """
         Finish the auth process once the access_token was retrieved.
         """
@@ -65,7 +65,7 @@ class NodmaOAuth2(BaseOAuth2):
 
     # @handle_http_errors
     def auth_complete(self, *args, **kwargs):
-        logging.warning('auth_complete')
+        logging.warning('AAA2 auth_complete')
         """
         Complete loging process, must return user instance.
         """
@@ -86,7 +86,7 @@ class NodmaOAuth2(BaseOAuth2):
                             *args, **kwargs)
 
     def user_data(self, access_token, *args, **kwargs):
-        logging.warning('user_data')
+        logging.warning('AAA2 user_data')
         """
         Grab user profile information from SSO.
         """
@@ -98,7 +98,7 @@ class NodmaOAuth2(BaseOAuth2):
         return data
 
     def get_user_id(self, details, response):
-        logging.warning('get_user_id')
+        logging.warning('AAA2 get_user_id')
         """
         Return a unique ID for the current user, by default from server response.
         Without this method, 1st time reg and login will be ok 
@@ -110,5 +110,5 @@ class NodmaOAuth2(BaseOAuth2):
         else:
             id_key = response.get('email')
         if not id_key:
-            logging.error("ID_KEY is not found in the User data response. SSO won't work correctly")
+            logging.error("AAA2 ID_KEY is not found in the User data response. SSO won't work correctly")
         return id_key

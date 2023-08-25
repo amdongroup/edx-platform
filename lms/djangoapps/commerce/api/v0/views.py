@@ -99,7 +99,7 @@ class BasketsView(APIView):
     ## MOD
     def _has_user_purchased_course(self, username, enrollingCourseId):
         print("GGWP4 : _has_user_purchased_course", username, enrollingCourseId)
-        purchased_courses_url = "https://sdl-demo-api.pagewerkz.com/api/courses/" + username
+        purchased_courses_url = "https://sdl-api.sdl.nodma.com/api/courses/" + username
         #purchased_courses_url = "https://oxygen-proxtera-api.apixoxygen.com/api/courses/" + username
         purchased_courses = requests.get(purchased_courses_url).json()
         user_enrolled = False

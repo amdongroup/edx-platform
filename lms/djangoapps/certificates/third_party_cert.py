@@ -52,7 +52,8 @@ def course_has_cert_template(course_key):
   return False
 
 def get_cert_config_for_course(course_key):
-  candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json' #dev
+  candidate_courses_url = 'https://ygndev.s3.amazonaws.com/edx/course-sdl.json' #live
+  # candidate_courses_url = 'https://ygndev.s3.ap-southeast-1.amazonaws.com/edx/course_dev.json' #dev
   # candidate_courses_url = 'https://oxygen-lms-sg.s3.ap-southeast-1.amazonaws.com/config/course_smefe.json' #live
   courses_response = requests.get(candidate_courses_url)
   courses_json = courses_response.json()
